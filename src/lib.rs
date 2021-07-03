@@ -1,12 +1,4 @@
-use std::{fmt, marker::PhantomData};
-
-use reqwest::Client;
-use serde::{de, Deserialize, Deserializer};
-
-#[macro_use]
-extern crate thiserror;
-
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum NekosBestError {
     #[error("reqwest error")]
     ReqwestError(#[from] reqwest::Error),
@@ -60,9 +52,10 @@ impl std::fmt::Display for Category {
 }
 
 pub const BASE_URL: &str = "https://nekos.best";
+pub const AMOUNT_LIMIT: u8 = 20;
 
 pub async fn get_with_client(
-    client: &Client,
+    client: &reqwest::Client,
     category: impl Into<Category>,
 ) -> Result<String, NekosBestError> {
     let mut resp = get_with_client_amount(client, category, 1).await?;
@@ -71,14 +64,18 @@ pub async fn get_with_client(
 }
 
 pub async fn get_with_client_amount(
-    client: &Client,
+    client: &reqwest::Client,
     category: impl Into<Category>,
     amount: impl Into<Option<u8>>,
 ) -> Result<Vec<String>, NekosBestError> {
+    use std::{fmt, marker::PhantomData};
+
+    use serde::{de, Deserialize, Deserializer};
+
     let mut req = client.get(format!("{}/{}", BASE_URL, category.into()));
     let amount: Option<u8> = amount.into();
     if let Some(amount) = amount {
-        req = req.query(&[("amount", amount)]);
+        req = req.query(&[("amount", amount.clamp(1, AMOUNT_LIMIT))]);
     }
 
     let r: reqwest::Response = req.send().await?;
@@ -127,7 +124,7 @@ pub async fn get_with_client_amount(
 }
 
 pub async fn get(category: impl Into<Category>) -> Result<String, NekosBestError> {
-    let client = Client::new();
+    let client = reqwest::Client::new();
 
     get_with_client(&client, category).await
 }
@@ -136,7 +133,7 @@ pub async fn get_amount(
     category: impl Into<Category>,
     amount: impl Into<Option<u8>>,
 ) -> Result<Vec<String>, NekosBestError> {
-    let client = Client::new();
+    let client = reqwest::Client::new();
 
     get_with_client_amount(&client, category, amount).await
 }
