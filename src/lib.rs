@@ -89,6 +89,7 @@ pub async fn get_with_client_amount(
         url: Vec<String>,
     }
 
+    // from https://stackoverflow.com/a/43627388/12576629
     fn string_or_seq_string<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
     where
         D: Deserializer<'de>,
