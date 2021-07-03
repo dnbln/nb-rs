@@ -87,12 +87,12 @@ pub async fn get_with_client_amount(
 
     #[derive(Deserialize)]
     struct NekosBestResponse {
-        url: String,
+        url: Vec<String>,
     }
 
-    let v = r.json::<Vec<NekosBestResponse>>().await?;
+    let v = r.json::<NekosBestResponse>().await?;
 
-    Ok(v.into_iter().map(|it| it.url).collect())
+    Ok(v.url)
 }
 
 pub async fn get(category: Category) -> Result<String, NekosBestError> {
