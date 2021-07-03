@@ -1,5 +1,7 @@
+use std::{fmt, marker::PhantomData};
+
 use reqwest::Client;
-use serde::Deserialize;
+use serde::{de, Deserialize, Deserializer};
 
 #[macro_use]
 extern crate thiserror;
@@ -8,6 +10,9 @@ extern crate thiserror;
 pub enum NekosBestError {
     #[error("reqwest error")]
     ReqwestError(#[from] reqwest::Error),
+
+    #[error("not found")]
+    NotFound,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -58,36 +63,61 @@ pub const BASE_URL: &str = "https://nekos.best";
 
 pub async fn get_with_client(
     client: &Client,
-    category: Category,
+    category: impl Into<Category>,
 ) -> Result<String, NekosBestError> {
-    let r: reqwest::Response = client
-        .get(format!("{}/{}", BASE_URL, category))
-        .send()
-        .await?;
+    let mut resp = get_with_client_amount(client, category, 1).await?;
 
-    #[derive(Deserialize)]
-    struct NekosBestResponse {
-        url: String,
-    }
-
-    let v = r.json::<NekosBestResponse>().await?;
-
-    Ok(v.url)
+    Ok(resp.pop().ok_or(NekosBestError::NotFound)?)
 }
 
 pub async fn get_with_client_amount(
     client: &Client,
-    category: Category,
-    amount: u8,
+    category: impl Into<Category>,
+    amount: impl Into<Option<u8>>,
 ) -> Result<Vec<String>, NekosBestError> {
-    let r: reqwest::Response = client
-        .get(format!("{}/{}?amount={}", BASE_URL, category, amount))
-        .send()
-        .await?;
+    let mut req = client.get(format!("{}/{}", BASE_URL, category.into()));
+    let amount: Option<u8> = amount.into();
+    if let Some(amount) = amount {
+        req = req.query(&[("amount", amount)]);
+    }
+
+    let r: reqwest::Response = req.send().await?;
 
     #[derive(Deserialize)]
     struct NekosBestResponse {
+        #[serde(deserialize_with = "string_or_seq_string")]
         url: Vec<String>,
+    }
+
+    fn string_or_seq_string<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct StringOrVec(PhantomData<Vec<String>>);
+
+        impl<'de> de::Visitor<'de> for StringOrVec {
+            type Value = Vec<String>;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("string or list of strings")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(vec![value.to_owned()])
+            }
+
+            fn visit_seq<S>(self, visitor: S) -> Result<Self::Value, S::Error>
+            where
+                S: de::SeqAccess<'de>,
+            {
+                Deserialize::deserialize(de::value::SeqAccessDeserializer::new(visitor))
+            }
+        }
+
+        deserializer.deserialize_any(StringOrVec(PhantomData))
     }
 
     let v = r.json::<NekosBestResponse>().await?;
@@ -95,13 +125,16 @@ pub async fn get_with_client_amount(
     Ok(v.url)
 }
 
-pub async fn get(category: Category) -> Result<String, NekosBestError> {
+pub async fn get(category: impl Into<Category>) -> Result<String, NekosBestError> {
     let client = Client::new();
 
     get_with_client(&client, category).await
 }
 
-pub async fn get_amount(category: Category, amount: u8) -> Result<Vec<String>, NekosBestError> {
+pub async fn get_amount(
+    category: impl Into<Category>,
+    amount: impl Into<Option<u8>>,
+) -> Result<Vec<String>, NekosBestError> {
     let client = Client::new();
 
     get_with_client_amount(&client, category, amount).await
