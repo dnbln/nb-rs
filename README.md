@@ -7,10 +7,21 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 ```rust,no_run
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let img_url = nekosbest::get(nekosbest::Category::Nekos).await?;
+    let img_url: String = nekosbest::get(nekosbest::Category::Nekos).await?;
     println!("{}", img_url);
     Ok(())
 }
 ```
 
+Or with an amount:
 
+```rust,no_run
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let img_urls: Vec<String> = nekosbest::get_amount(nekosbest::Category::Nekos, 20).await?;
+    println!("{:?}", img_urls);
+    Ok(())
+}
+```
+
+Or if you already have a `reqwest::Client` that you want to use, use `get_with_client` and `get_with_client_amount` respectively.

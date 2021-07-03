@@ -75,8 +75,34 @@ pub async fn get_with_client(
     Ok(v.url)
 }
 
+pub async fn get_with_client_amount(
+    client: &Client,
+    category: Category,
+    amount: u8,
+) -> Result<Vec<String>, NekosBestError> {
+    let r: reqwest::Response = client
+        .get(format!("{}/{}?amount={}", BASE_URL, category, amount))
+        .send()
+        .await?;
+
+    #[derive(Deserialize)]
+    struct NekosBestResponse {
+        url: String,
+    }
+
+    let v = r.json::<Vec<NekosBestResponse>>().await?;
+
+    Ok(v.into_iter().map(|it| it.url).collect())
+}
+
 pub async fn get(category: Category) -> Result<String, NekosBestError> {
     let client = Client::new();
 
     get_with_client(&client, category).await
+}
+
+pub async fn get_amount(category: Category, amount: u8) -> Result<Vec<String>, NekosBestError> {
+    let client = Client::new();
+
+    get_with_client_amount(&client, category, amount).await
 }
