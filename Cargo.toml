@@ -2,6 +2,10 @@
 name = "nekosbest"
 version = "0.1.0"
 edition = "2018"
+license = "CC0-1.0"
+license-file = "LICENSE"
+repository = "https://github.com/dblanovschi/nb-rs"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
