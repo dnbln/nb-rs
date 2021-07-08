@@ -1,7 +1,12 @@
-# nb-rs
+# nekosbest
 
 Rust API wrapper for [nekos.best](https://nekos.best/).
 
+## Usage
+```toml
+[dependencies]
+nekosbest = "0.1.0"
+```
 
 ## Example
 ```rust,no_run

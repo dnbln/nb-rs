@@ -52,7 +52,6 @@ impl std::fmt::Display for Category {
 }
 
 pub const BASE_URL: &str = "https://nekos.best";
-pub const AMOUNT_LIMIT: u8 = 20;
 
 pub async fn get_with_client(
     client: &reqwest::Client,
@@ -75,7 +74,7 @@ pub async fn get_with_client_amount(
     let mut req = client.get(format!("{}/{}", BASE_URL, category.into()));
     let amount: Option<u8> = amount.into();
     if let Some(amount) = amount {
-        req = req.query(&[("amount", amount.clamp(1, AMOUNT_LIMIT))]);
+        req = req.query(&[("amount", amount)]);
     }
 
     let r: reqwest::Response = req.send().await?;
