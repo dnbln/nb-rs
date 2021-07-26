@@ -9,6 +9,9 @@ use std::{
 
 use reqwest::IntoUrl;
 
+#[cfg(feature = "local")]
+pub mod local;
+
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
 pub struct NekosBestResponse {
@@ -242,9 +245,7 @@ pub async fn get_details_with_client(
 ///
 /// # Errors
 /// Any errors that can happen, refer to [`NekosBestError`].
-pub async fn get_details(
-    url: impl IntoUrl,
-) -> Result<NekosDetails, NekosBestError> {
+pub async fn get_details(url: impl IntoUrl) -> Result<NekosDetails, NekosBestError> {
     let client = reqwest::Client::new();
 
     get_details_with_client(&client, url).await
