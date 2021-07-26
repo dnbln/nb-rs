@@ -36,7 +36,7 @@ With Category::Nekos, there is another property called details:
 ```rust,no_run
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let details = nekosbest::get(nekosbest::Category::Nekos).await?.details;
+    let details = nekosbest::get(nekosbest::Category::Nekos).await?.details.unwrap();
     println!("Source: {}", details.source_url);
     println!("Artist: {}", details.artist_name);
     println!("Artist link: {}", details.artist_href);
