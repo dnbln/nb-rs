@@ -5,7 +5,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 ## Usage
 ```toml
 [dependencies]
-nekosbest = "0.1.0"
+nekosbest = "0.2"
 ```
 
 ## Example
@@ -30,3 +30,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 Or if you already have a `reqwest::Client` that you want to use, use `get_with_client` and `get_with_client_amount` respectively.
+
+With Category::Nekos, there is another property called details:
+
+```rust,no_run
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let details = nekosbest::get(nekosbest::Category::Nekos).await?.details;
+    println!("Source: {}", details.source_url);
+    println!("Artist: {}", details.artist_name);
+    println!("Artist link: {}", details.artist_href);
+    Ok(())
+}
+```
