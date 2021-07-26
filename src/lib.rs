@@ -7,6 +7,8 @@ use std::{
     ops::{Deref, DerefMut, Index, IndexMut},
 };
 
+use reqwest::IntoUrl;
+
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
 pub struct NekosBestResponse {
@@ -93,6 +95,9 @@ pub enum NekosBestError {
 
     #[error("not found")]
     NotFound,
+
+    #[error("decoding")]
+    Decoding(#[from] serde_json::Error),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -205,6 +210,46 @@ pub async fn get_amount(
     get_with_client_amount(&client, category, amount).await
 }
 
+/// Gets the source of a [`Category::Nekos`] image,
+/// by requesting it with the given client and reading the headers.
+///
+/// # Errors
+/// Any errors that can happen, refer to [`NekosBestError`].
+pub async fn get_details_with_client(
+    client: &reqwest::Client,
+    url: impl IntoUrl,
+) -> Result<NekosDetails, NekosBestError> {
+    let r = client.get(url).send().await?;
+
+    let h = r.headers();
+    let details_header = h.get("Details");
+
+    let result = match details_header {
+        Some(h) => {
+            let s = h.to_str().expect("Not UTF-8 header");
+            serde_json::from_str::<NekosDetails>(s)?
+        }
+        None => return Err(NekosBestError::NotFound),
+    };
+
+    drop(r);
+
+    Ok(result)
+}
+
+/// Gets the source of a [`Category::Nekos`] image,
+/// by requesting it with the default client and reading the headers.
+///
+/// # Errors
+/// Any errors that can happen, refer to [`NekosBestError`].
+pub async fn get_details(
+    url: impl IntoUrl,
+) -> Result<NekosDetails, NekosBestError> {
+    let client = reqwest::Client::new();
+
+    get_details_with_client(&client, url).await
+}
+
 #[derive(serde::Deserialize)]
 #[serde(try_from = "String")]
 struct UrlEncodedString(String);
@@ -226,7 +271,7 @@ struct NekosDetailsInternal {
 /// In the case of [`Category::Nekos`], the API
 /// also returns the source url, the name and a
 /// link to the artist that made it.
-#[derive(serde::Deserialize, Debug, Clone, Hash)]
+#[derive(serde::Deserialize, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(from = "NekosDetailsInternal")]
 pub struct NekosDetails {
     pub artist_href: String,
