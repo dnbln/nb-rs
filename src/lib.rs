@@ -229,15 +229,15 @@ pub async fn get_details_with_client(
 
     let result = match details_header {
         Some(h) => {
-            let s = h.to_str().expect("Not UTF-8 header");
-            serde_json::from_str::<NekosDetails>(s)?
+            let s = h.to_str().expect("Not ASCII header");
+            serde_json::from_str::<NekosDetailsInternalUrlEncoded>(s)?
         }
         None => return Err(NekosBestError::NotFound),
     };
 
     drop(r);
 
-    Ok(result)
+    Ok(From::from(result))
 }
 
 /// Gets the source of a [`Category::Nekos`] image,
@@ -263,7 +263,7 @@ impl TryFrom<String> for UrlEncodedString {
 }
 
 #[derive(serde::Deserialize)]
-struct NekosDetailsInternal {
+struct NekosDetailsInternalUrlEncoded {
     artist_href: UrlEncodedString,
     artist_name: UrlEncodedString,
     source_url: UrlEncodedString,
@@ -273,15 +273,14 @@ struct NekosDetailsInternal {
 /// also returns the source url, the name and a
 /// link to the artist that made it.
 #[derive(serde::Deserialize, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-#[serde(from = "NekosDetailsInternal")]
 pub struct NekosDetails {
     pub artist_href: String,
     pub artist_name: String,
     pub source_url: String,
 }
 
-impl From<NekosDetailsInternal> for NekosDetails {
-    fn from(d: NekosDetailsInternal) -> Self {
+impl From<NekosDetailsInternalUrlEncoded> for NekosDetails {
+    fn from(d: NekosDetailsInternalUrlEncoded) -> Self {
         Self {
             artist_href: d.artist_href.0,
             artist_name: d.artist_name.0,

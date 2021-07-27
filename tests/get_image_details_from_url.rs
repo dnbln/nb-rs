@@ -6,7 +6,5 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let s = nekosbest::get_details(img_url).await?;
     assert_eq!(Some(&s), resp.details.as_ref());
 
-    println!("{}: source {}", img_url, s.source_url);
-
     Ok(())
 }
