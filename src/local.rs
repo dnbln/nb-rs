@@ -21,7 +21,7 @@ pub trait LocalNekosBestCategory {
     // Gets a random image url given a random number.
     fn get_random(&self, random: usize) -> String {
         format!(
-            "{}/{}/{:0width$}{}",
+            "{}/{}/{:0width$}.{}",
             super::BASE_URL,
             Self::CATEGORY,
             random % (Self::MAX - Self::MIN + 1) + Self::MIN,
