@@ -152,7 +152,8 @@ impl std::fmt::Display for Category {
     }
 }
 
-pub const BASE_URL: &str = "https://nekos.best";
+pub const API_VERSION: usize = 1;
+pub const BASE_URL: &str = "https://nekos.best/api/v1";
 
 /// Gets a single image, with a supplied client.
 ///
