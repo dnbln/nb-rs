@@ -67,7 +67,7 @@ async fn main() -> Result<(), E> {
                         pub fn get_random(&self, random: usize) -> String {
                             <Self as super::LocalNekosBestCategory>::get_random(self, random)
                         }
-                    
+
                         pub fn get(&self) -> String {
                             <Self as super::LocalNekosBestCategory>::get(self)
                         }
@@ -87,7 +87,10 @@ async fn main() -> Result<(), E> {
 
         let implementations = implementations.to_string();
 
-        std::fs::write(PathBuf::from(std::env::var("OUT_DIR")?).join("local_implementation.rs"), implementations)?;
+        std::fs::write(
+            PathBuf::from(std::env::var("OUT_DIR")?).join("local_implementation.rs"),
+            implementations,
+        )?;
     }
 
     Ok(())
@@ -96,6 +99,14 @@ async fn main() -> Result<(), E> {
 const BASE_URL: &str = "https://nekos.best";
 
 async fn get_endpoints_data(client: &reqwest::Client) -> Result<HashMap<String, EndpointDesc>, E> {
+    if let Ok(_) = std::env::var("DOCS_RS") {
+        // we are on docs.rs
+
+        let endpoints_json = r#"{"baka":{"min":"001","max":"014","format":"gif"},"cry":{"min":"001","max":"032","format":"gif"},"cuddle":{"min":"001","max":"026","format":"gif"},"dance":{"min":"001","max":"019","format":"gif"},"feed":{"min":"001","max":"017","format":"gif"},"hug":{"min":"001","max":"022","format":"gif"},"kiss":{"min":"001","max":"025","format":"gif"},"laugh":{"min":"001","max":"013","format":"gif"},"nekos":{"min":"0001","max":"0476","format":"jpg"},"pat":{"min":"001","max":"029","format":"gif"},"poke":{"min":"001","max":"017","format":"gif"},"slap":{"min":"001","max":"027","format":"gif"},"smile":{"min":"001","max":"016","format":"gif"},"smug":{"min":"001","max":"012","format":"gif"},"tickle":{"min":"001","max":"017","format":"gif"},"wave":{"min":"001","max":"017","format":"gif"}}"#;
+
+        return Ok(serde_json::from_str(endpoints_json)?);
+    }
+
     Ok(client
         .get(format!("{}/endpoints", BASE_URL))
         .send()
