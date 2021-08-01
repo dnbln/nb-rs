@@ -4,6 +4,7 @@ use crate::details::NekosDetails;
 
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
+#[serde(transparent)]
 pub struct NekosBestResponse {
     /// The list of urls returned, with artist and source details if
     /// using [`Category::Nekos`]
