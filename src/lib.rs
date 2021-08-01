@@ -15,22 +15,14 @@ pub mod local;
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
 pub struct NekosBestResponse {
-    /// The list of urls returned
-    #[serde(deserialize_with = "serde_utils::string_or_seq_string")]
-    pub url: Vec<String>,
-
-    /// In the case of [`Category::Nekos`], also returns the source
-    /// and the artist name and a link to their profile.
-    /// It is empty in all other categories.
-    #[serde(
-        default,
-        deserialize_with = "serde_utils::nekos_details_or_seq_nekos_details"
-    )]
-    pub details: Vec<NekosDetails>,
+    /// The list of urls returned, with artist and source details if
+    /// using [`Category::Nekos`]
+    #[serde(deserialize_with = "serde_utils::response_or_seq_response")]
+    pub url: Vec<NekosBestResponseSingle>,
 }
 
 impl Index<usize> for NekosBestResponse {
-    type Output = String;
+    type Output = NekosBestResponseSingle;
 
     fn index(&self, index: usize) -> &Self::Output {
         self.url.index(index)
@@ -44,7 +36,7 @@ impl IndexMut<usize> for NekosBestResponse {
 }
 
 impl Deref for NekosBestResponse {
-    type Target = Vec<String>;
+    type Target = Vec<NekosBestResponseSingle>;
 
     fn deref(&self) -> &Self::Target {
         &self.url
@@ -59,11 +51,12 @@ impl DerefMut for NekosBestResponse {
 
 /// A response from the api, in the case of requesting a single
 /// url with [`get`] or [`get_with_client`]
-#[derive(Debug, Clone, Hash)]
+#[derive(Debug, Clone, Hash, serde::Deserialize)]
 pub struct NekosBestResponseSingle {
     /// The url
     pub url: String,
     /// The details, in case of [`Category::Nekos`]
+    #[serde(flatten, default)]
     pub details: Option<NekosDetails>,
 }
 
@@ -78,16 +71,6 @@ impl Deref for NekosBestResponseSingle {
 impl DerefMut for NekosBestResponseSingle {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.url
-    }
-}
-
-impl TryFrom<NekosBestResponse> for NekosBestResponseSingle {
-    type Error = NekosBestError;
-    fn try_from(mut r: NekosBestResponse) -> Result<Self, Self::Error> {
-        Ok(Self {
-            url: r.url.pop().ok_or(NekosBestError::NotFound)?,
-            details: r.details.pop(),
-        })
     }
 }
 
@@ -163,9 +146,11 @@ pub async fn get_with_client(
     client: &reqwest::Client,
     category: impl Into<Category>,
 ) -> Result<NekosBestResponseSingle, NekosBestError> {
-    let resp = get_with_client_amount(client, category, 1).await?;
+    let r = client.get(format!("{}/{}", BASE_URL, category.into())).send().await?;
 
-    TryFrom::try_from(resp)
+    let resp = r.json().await?;
+
+    Ok(resp)
 }
 
 /// Gets `amount` images, with a supplied client.
@@ -296,50 +281,18 @@ mod serde_utils {
 
     use serde::{de, Deserialize, Deserializer};
 
-    use super::NekosDetails;
+    use super::NekosBestResponseSingle;
 
-    // from https://stackoverflow.com/a/43627388/12576629
-    pub fn string_or_seq_string<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        struct StringOrVec;
-
-        impl<'de> de::Visitor<'de> for StringOrVec {
-            type Value = Vec<String>;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("string or list of strings")
-            }
-
-            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(vec![value.to_owned()])
-            }
-
-            fn visit_seq<S>(self, visitor: S) -> Result<Self::Value, S::Error>
-            where
-                S: de::SeqAccess<'de>,
-            {
-                Deserialize::deserialize(de::value::SeqAccessDeserializer::new(visitor))
-            }
-        }
-
-        deserializer.deserialize_any(StringOrVec)
-    }
-
-    pub fn nekos_details_or_seq_nekos_details<'de, D>(
+    pub fn response_or_seq_response<'de, D>(
         deserializer: D,
-    ) -> Result<Vec<NekosDetails>, D::Error>
+    ) -> Result<Vec<NekosBestResponseSingle>, D::Error>
     where
         D: Deserializer<'de>,
     {
-        struct NekosDetailsOrVec;
+        struct ResponseSingleOrVec;
 
-        impl<'de> de::Visitor<'de> for NekosDetailsOrVec {
-            type Value = Vec<NekosDetails>;
+        impl<'de> de::Visitor<'de> for ResponseSingleOrVec {
+            type Value = Vec<NekosBestResponseSingle>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("nekos details or list of nekos details")
@@ -375,7 +328,7 @@ mod serde_utils {
             }
         }
 
-        deserializer.deserialize_option(NekosDetailsOrVec)
+        deserializer.deserialize_option(ResponseSingleOrVec)
     }
 }
 
