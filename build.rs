@@ -1,45 +1,67 @@
-use std::{collections::HashMap, convert::TryFrom, path::PathBuf, str::FromStr};
-
-use proc_macro2::TokenStream;
-use quote::{format_ident, ToTokens, TokenStreamExt};
-
 type E = Box<dyn std::error::Error>;
-
-#[derive(serde::Deserialize)]
-struct EndpointDescInternal {
-    min: String,
-    max: String,
-    format: String,
-}
-
-#[derive(serde::Deserialize)]
-#[serde(try_from = "EndpointDescInternal")]
-struct EndpointDesc {
-    min: usize,
-    max: usize,
-    format: String,
-    with_padding: usize,
-}
-
-impl TryFrom<EndpointDescInternal> for EndpointDesc {
-    type Error = <usize as FromStr>::Err;
-
-    fn try_from(d: EndpointDescInternal) -> Result<Self, Self::Error> {
-        Ok(Self {
-            min: d.min.parse()?,
-            max: d.max.parse()?,
-            format: d.format,
-            with_padding: d.max.len(),
-        })
-    }
-}
 
 #[tokio::main]
 async fn main() -> Result<(), E> {
+    #[allow(unused_variables)]
     let client = reqwest::Client::new();
     #[cfg(feature = "local")]
     {
-        use quote::quote;
+        use std::{collections::HashMap, convert::TryFrom, path::PathBuf, str::FromStr};
+
+        use proc_macro2::TokenStream;
+        use quote::{format_ident, quote, ToTokens, TokenStreamExt};
+
+        #[derive(serde::Deserialize)]
+        struct EndpointDescInternal {
+            min: String,
+            max: String,
+            format: String,
+        }
+
+        #[derive(serde::Deserialize)]
+        #[serde(try_from = "EndpointDescInternal")]
+        struct EndpointDesc {
+            min: usize,
+            max: usize,
+            format: String,
+            with_padding: usize,
+        }
+
+        impl TryFrom<EndpointDescInternal> for EndpointDesc {
+            type Error = <usize as FromStr>::Err;
+        
+            fn try_from(d: EndpointDescInternal) -> Result<Self, Self::Error> {
+                Ok(Self {
+                    min: d.min.parse()?,
+                    max: d.max.parse()?,
+                    format: d.format,
+                    with_padding: d.max.len(),
+                })
+            }
+        }
+        
+
+        const BASE_URL: &str = "https://nekos.best";
+
+        async fn get_endpoints_data(
+            client: &reqwest::Client,
+        ) -> Result<HashMap<String, EndpointDesc>, E> {
+            if let Ok(_) = std::env::var("DOCS_RS") {
+                // we are on docs.rs
+
+                let endpoints_json = r#"{"baka":{"min":"001","max":"014","format":"gif"},"cry":{"min":"001","max":"032","format":"gif"},"cuddle":{"min":"001","max":"026","format":"gif"},"dance":{"min":"001","max":"019","format":"gif"},"feed":{"min":"001","max":"017","format":"gif"},"hug":{"min":"001","max":"022","format":"gif"},"kiss":{"min":"001","max":"025","format":"gif"},"laugh":{"min":"001","max":"013","format":"gif"},"nekos":{"min":"0001","max":"0476","format":"jpg"},"pat":{"min":"001","max":"029","format":"gif"},"poke":{"min":"001","max":"017","format":"gif"},"slap":{"min":"001","max":"027","format":"gif"},"smile":{"min":"001","max":"016","format":"gif"},"smug":{"min":"001","max":"012","format":"gif"},"tickle":{"min":"001","max":"017","format":"gif"},"wave":{"min":"001","max":"017","format":"gif"}}"#;
+
+                return Ok(serde_json::from_str(endpoints_json)?);
+            }
+
+            Ok(client
+                .get(format!("{}/endpoints", BASE_URL))
+                .send()
+                .await?
+                .json()
+                .await?)
+        }
+
         let endpoints = get_endpoints_data(&client).await?;
 
         struct CategoryData<'a>(&'a str, &'a EndpointDesc);
@@ -94,23 +116,4 @@ async fn main() -> Result<(), E> {
     }
 
     Ok(())
-}
-
-const BASE_URL: &str = "https://nekos.best";
-
-async fn get_endpoints_data(client: &reqwest::Client) -> Result<HashMap<String, EndpointDesc>, E> {
-    if let Ok(_) = std::env::var("DOCS_RS") {
-        // we are on docs.rs
-
-        let endpoints_json = r#"{"baka":{"min":"001","max":"014","format":"gif"},"cry":{"min":"001","max":"032","format":"gif"},"cuddle":{"min":"001","max":"026","format":"gif"},"dance":{"min":"001","max":"019","format":"gif"},"feed":{"min":"001","max":"017","format":"gif"},"hug":{"min":"001","max":"022","format":"gif"},"kiss":{"min":"001","max":"025","format":"gif"},"laugh":{"min":"001","max":"013","format":"gif"},"nekos":{"min":"0001","max":"0476","format":"jpg"},"pat":{"min":"001","max":"029","format":"gif"},"poke":{"min":"001","max":"017","format":"gif"},"slap":{"min":"001","max":"027","format":"gif"},"smile":{"min":"001","max":"016","format":"gif"},"smug":{"min":"001","max":"012","format":"gif"},"tickle":{"min":"001","max":"017","format":"gif"},"wave":{"min":"001","max":"017","format":"gif"}}"#;
-
-        return Ok(serde_json::from_str(endpoints_json)?);
-    }
-
-    Ok(client
-        .get(format!("{}/endpoints", BASE_URL))
-        .send()
-        .await?
-        .json()
-        .await?)
 }

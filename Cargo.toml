@@ -19,6 +19,7 @@ native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 
 local = ["rand"]
+metrics = ["humantime-serde"]
 
 [dependencies]
 reqwest = { version="0.11", default-features=false, features=["json"] }
@@ -26,6 +27,10 @@ thiserror = "1.0"
 serde = { version="1.0", features=["derive"] }
 serde_json = "1"
 urlencoding = "2"
+
+[dependencies.humantime-serde]
+version = "1"
+optional = true
 
 [dependencies.rand]
 version = "0.8"
@@ -46,3 +51,8 @@ proc-macro2 = "1"
 name = "from_local_nekos"
 path = "examples/from_local_nekos.rs"
 required-features = ["local"]
+
+[[test]]
+name = "try_metrics"
+path = "tests/try_metrics.rs"
+required-features = ["metrics"]
