@@ -8,9 +8,9 @@ pub mod local;
 #[cfg(feature = "metrics")]
 pub mod metrics;
 
-pub mod response;
-pub mod details;
 pub mod category;
+pub mod details;
+pub mod response;
 
 pub use category::Category;
 
@@ -57,13 +57,11 @@ pub async fn get_with_client(
 pub async fn get_with_client_amount(
     client: &reqwest::Client,
     category: impl Into<Category>,
-    amount: impl Into<Option<u8>>,
+    amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
-    let mut req = client.get(format!("{}/{}", BASE_URL, category.into()));
-    let amount: Option<u8> = amount.into();
-    if let Some(amount) = amount {
-        req = req.query(&[("amount", amount)]);
-    }
+    let req = client
+        .get(format!("{}/{}", BASE_URL, category.into()))
+        .query(&[("amount", amount.into())]);
 
     let r: reqwest::Response = req.send().await?;
 
@@ -86,7 +84,7 @@ pub async fn get(category: impl Into<Category>) -> Result<NekosBestResponseSingl
 /// Any errors that can happen, refer to [`NekosBestError`].
 pub async fn get_amount(
     category: impl Into<Category>,
-    amount: impl Into<Option<u8>>,
+    amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
     get_with_client_amount(&reqwest::Client::new(), category, amount).await
 }
