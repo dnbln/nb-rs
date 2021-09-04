@@ -44,7 +44,7 @@ pub async fn get_with_client(
         .send()
         .await?;
 
-    let resp = r.json().await?;
+    let resp = r.error_for_status()?.json().await?;
 
     Ok(resp)
 }
@@ -65,7 +65,7 @@ pub async fn get_with_client_amount(
 
     let r: reqwest::Response = req.send().await?;
 
-    let v = r.json::<NekosBestResponse>().await?;
+    let v = r.error_for_status()?.json::<NekosBestResponse>().await?;
 
     Ok(v)
 }
@@ -124,7 +124,8 @@ mod test {
             try_endpoint,
             [
                 Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Nekos, Pat, Poke, Slap, Smile,
-                Smug, Tickle, Wave,
+                Smug, Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare,
+                Think, ThumbsUp, Wink,
             ]
         );
     }
@@ -149,7 +150,8 @@ mod test {
 
         const KNOWN_ENDPOINTS: &[&str] = &known_image_endpoints!([
             Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Nekos, Pat, Poke, Slap, Smile, Smug,
-            Tickle, Wave,
+            Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare, Think,
+            ThumbsUp, Wink,
         ]);
 
         async fn get_endpoints(client: &reqwest::Client) -> HashMap<String, EndpointDesc> {

@@ -1,7 +1,4 @@
-use std::{
-    convert::TryFrom,
-    str::FromStr,
-};
+use std::{convert::TryFrom, str::FromStr};
 
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
@@ -24,6 +21,20 @@ pub enum Category {
     Smug,
     Tickle,
     Wave,
+
+    Bite,
+    Blush,
+    Bored,
+    Facepalm,
+    Happy,
+    Highfive,
+    Pout,
+    Shrug,
+    Sleep,
+    Stare,
+    Think,
+    ThumbsUp,
+    Wink,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -51,6 +62,20 @@ impl FromStr for Category {
             "smug" => Category::Smug,
             "tickle" => Category::Tickle,
             "wave" => Category::Wave,
+
+            "bite" => Category::Bite,
+            "blush" => Category::Blush,
+            "bored" => Category::Bored,
+            "facepalm" => Category::Facepalm,
+            "happy" => Category::Happy,
+            "highfive" => Category::Highfive,
+            "pout" => Category::Pout,
+            "shrug" => Category::Shrug,
+            "sleep" => Category::Sleep,
+            "stare" => Category::Stare,
+            "think" => Category::Think,
+            "tumbsup" => Category::ThumbsUp,
+            "wink" => Category::Wink,
             _ => return Err(NoSuchVariant),
         };
 
@@ -91,6 +116,20 @@ impl Category {
             Category::Smug => "smug",
             Category::Tickle => "tickle",
             Category::Wave => "wave",
+
+            Category::Bite => "bite",
+            Category::Blush => "blush",
+            Category::Bored => "bored",
+            Category::Facepalm => "facepalm",
+            Category::Happy => "happy",
+            Category::Highfive => "highfive",
+            Category::Pout => "pout",
+            Category::Shrug => "shrug",
+            Category::Sleep => "sleep",
+            Category::Stare => "stare",
+            Category::Think => "think",
+            Category::ThumbsUp => "thumbsup",
+            Category::Wink => "wink",
         }
     }
 }
