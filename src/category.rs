@@ -74,7 +74,7 @@ impl FromStr for Category {
             "sleep" => Category::Sleep,
             "stare" => Category::Stare,
             "think" => Category::Think,
-            "tumbsup" => Category::ThumbsUp,
+            "thumbsup" => Category::ThumbsUp,
             "wink" => Category::Wink,
             _ => return Err(NoSuchVariant),
         };
