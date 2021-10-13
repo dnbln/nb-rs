@@ -14,6 +14,8 @@ pub mod response;
 
 pub use category::Category;
 
+use details::{GifDetails, NekosDetails};
+use reqwest::IntoUrl;
 pub use response::{NekosBestResponse, NekosBestResponseSingle};
 
 #[derive(thiserror::Error, Debug)]
@@ -87,6 +89,48 @@ pub async fn get_amount(
     amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
     get_with_client_amount(&reqwest::Client::new(), category, amount).await
+}
+
+pub async fn get_with_client_nekos_details(client: &reqwest::Client, url: impl IntoUrl) -> Result<NekosDetails, NekosBestError> {
+    let resp = client.get(url).send().await?.error_for_status()?;
+    let details = resp.headers().get("details").ok_or(NekosBestError::NotFound)?;
+    let details_text = details.to_str().expect("Not ascii content in details");
+
+    #[derive(serde::Deserialize)]
+    #[serde(transparent)]
+    struct UrlEncodedDetails {
+        #[serde(deserialize_with = "crate::details::url_encoded_nekos_details_deserialize")]
+        details: NekosDetails,
+    }
+
+    let d = serde_json::from_str::<UrlEncodedDetails>(&details_text)?;
+
+    Ok(d.details)
+}
+
+pub async fn get_nekos_details(url: impl IntoUrl) -> Result<NekosDetails, NekosBestError> {
+    get_with_client_nekos_details(&reqwest::Client::new(), url).await
+}
+
+pub async fn get_with_client_gif_details(client: &reqwest::Client, url: impl IntoUrl) -> Result<GifDetails, NekosBestError> {
+    let resp = client.get(url).send().await?.error_for_status()?;
+    let details = resp.headers().get("details").ok_or(NekosBestError::NotFound)?;
+    let details_text = details.to_str().expect("Not ascii content in details");
+
+    #[derive(serde::Deserialize)]
+    #[serde(transparent)]
+    struct UrlEncodedDetails {
+        #[serde(deserialize_with = "crate::details::url_encoded_gif_details_deserialize")]
+        details: GifDetails,
+    }
+
+    let d = serde_json::from_str::<UrlEncodedDetails>(&details_text)?;
+
+    Ok(d.details)
+}
+
+pub async fn get_gif_details(url: impl IntoUrl) -> Result<GifDetails, NekosBestError> {
+    get_with_client_gif_details(&reqwest::Client::new(), url).await
 }
 
 #[cfg(test)]

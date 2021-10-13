@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut, Index, IndexMut};
 
-use crate::details::NekosDetails;
+use crate::details::Details;
 
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
@@ -45,9 +45,9 @@ impl DerefMut for NekosBestResponse {
 pub struct NekosBestResponseSingle {
     /// The url
     pub url: String,
-    /// The details, in case of [`Category::Nekos`]
-    #[serde(flatten, default)]
-    pub details: Option<NekosDetails>,
+    /// The details
+    #[serde(flatten)]
+    pub details: Details,
 }
 
 impl Deref for NekosBestResponseSingle {

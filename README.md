@@ -3,13 +3,15 @@
 Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ## Usage
+
 ```toml
 [dependencies]
 nekosbest = "0.7"
 ```
 
 ## Example
-```rust,no_run
+
+```rust ,no_run
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let img_url: String = nekosbest::get(nekosbest::Category::Nekos).await?.url;
@@ -20,7 +22,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Or with an amount(amount is capped at 20 by the server):
 
-```rust,no_run
+```rust ,no_run
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let images = nekosbest::get_amount(nekosbest::Category::Nekos, 20).await?.url;
@@ -31,12 +33,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 Or if you already have a `reqwest::Client` that you want to use, use `get_with_client` and `get_with_client_amount` respectively.
 
-With Category::Nekos, there is another property called details:
+There is another property called `details`:
 
-```rust,no_run
+For `Category::Nekos`:
+
+```rust ,no_run
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let details = nekosbest::get(nekosbest::Category::Nekos).await?.details.unwrap();
+    let details = nekosbest::get(nekosbest::Category::Nekos).await?.details.try_into_nekos().unwrap();
     println!("Source: {}", details.source_url);
     println!("Artist: {}", details.artist_name);
     println!("Artist link: {}", details.artist_href);
@@ -44,8 +48,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+For everything else(gif endpoints):
+
+```rust ,no_run
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let details = nekosbest::get(nekosbest::Category::Pat).await?.details.try_into_gif().unwrap();
+    println!("Anime name: {}", details.anime_name);
+    Ok(())
+}
+```
+
 By using the `local` feature, you can completelly skip requests to the API.
-```rust,no_run
+
+```rust ,no_run
 fn main() {
     let img_url = nekosbest::local::Nekos.get();
     println!("{}", img_url);
@@ -54,7 +70,8 @@ fn main() {
 ```
 
 Or if you have your own random number:
-```rust,no_run
+
+```rust ,no_run
 fn main() {
     let your_random = unimplemented!();
     let img_url = nekosbest::local::Nekos.get_random(your_random);
