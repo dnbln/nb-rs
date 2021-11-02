@@ -25,7 +25,7 @@ Or with an amount(amount is capped at 20 by the server):
 ```rust ,no_run
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let images = nekosbest::get_amount(nekosbest::Category::Nekos, 20).await?.url;
+    let images = nekosbest::get_amount(nekosbest::Category::Nekos, 20).await?.0;
     println!("{:?}", images);
     Ok(())
 }
