@@ -16,8 +16,6 @@ pub fn blocking(
     let result = blocking_impl(input);
     let r = quote! {#result};
 
-    eprintln!("{}", r);
-
     r.into()
 }
 

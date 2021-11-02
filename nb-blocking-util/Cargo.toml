@@ -1,7 +1,7 @@
 [package]
 name = "nb-blocking-util"
 description = "Utility proc macro for removing all async/await from a function"
-version = "0.10.0"
+version = "0.10.1"
 edition = "2021"
 license = "CC0-1.0"
 repository = "https://github.com/dblanovschi/nb-rs"
