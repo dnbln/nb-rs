@@ -89,7 +89,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-By using the `local` feature, you can completelly skip requests to the API.
+By using the `local` feature, you can completely skip requests to the API.
 
 ```rust ,no_run
 fn main() {
