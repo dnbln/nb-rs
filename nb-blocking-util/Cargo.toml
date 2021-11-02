@@ -1,7 +1,11 @@
 [package]
 name = "nb-blocking-util"
+description = "Utility proc macro for removing all async/await from a function"
 version = "0.10.0"
 edition = "2021"
+license = "CC0-1.0"
+repository = "https://github.com/dblanovschi/nb-rs"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
