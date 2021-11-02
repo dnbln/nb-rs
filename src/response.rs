@@ -5,23 +5,19 @@ use crate::details::Details;
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
 #[serde(transparent)]
-pub struct NekosBestResponse {
-    /// The list of urls returned, with artist and source details if
-    /// using [`Category::Nekos`]
-    pub url: Vec<NekosBestResponseSingle>,
-}
+pub struct NekosBestResponse(pub Vec<NekosBestResponseSingle>);
 
 impl Index<usize> for NekosBestResponse {
     type Output = NekosBestResponseSingle;
 
     fn index(&self, index: usize) -> &Self::Output {
-        self.url.index(index)
+        self.0.index(index)
     }
 }
 
 impl IndexMut<usize> for NekosBestResponse {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        self.url.index_mut(index)
+        self.0.index_mut(index)
     }
 }
 
@@ -29,13 +25,13 @@ impl Deref for NekosBestResponse {
     type Target = Vec<NekosBestResponseSingle>;
 
     fn deref(&self) -> &Self::Target {
-        &self.url
+        &self.0
     }
 }
 
 impl DerefMut for NekosBestResponse {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.url
+        &mut self.0
     }
 }
 

@@ -1,26 +1,22 @@
-{ pkgs ? import <nixpkgs> { overlays = (import ./nix/overlays.nix); } }:
+{ utils ? import ./utils.nix
+, pkgs ? import <nixpkgs> {
+    overlays = [
+      (utils.importRepo { user = "oxalica"; repo = "rust-overlay"; branch = "master"; })
+    ];
+  }
+}:
 
-pkgs.mkShell {
-  nativeBuildInputs = [
-    (pkgs.rust-bin.stable.latest.default.override {
-      extensions = ["rust-src"];
-    })
-  ];
+let
+  thorConfig = import ./thor-config.nix;
+  thor = utils.importRepo { user = "dblanovschi"; repo = "thor"; } { inherit pkgs; config = thorConfig; };
+in
+with thor.rust.toolchainCommons;
+thor.rust.mkRustShell {
+  toolchain = "nightly-musl";
 
-  buildInputs = [
+  extraNativeBuildInputs = [ ];
+
+  extraBuildInputs = [
     pkgs.nixpkgs-fmt
-    pkgs.niv
-
-    pkgs.clang_12
-    pkgs.lld_12
-    pkgs.glibc
-
-    # dependencies
-    pkgs.openssl
-    pkgs.pkg-config
   ];
-
-  shellHook = ''
-    export CC=clang
-  '';
 }

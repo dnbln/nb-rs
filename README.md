@@ -6,7 +6,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ```toml
 [dependencies]
-nekosbest = "0.9"
+nekosbest = "0.10"
 ```
 
 ## Example
@@ -59,6 +59,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+Or with the `strong-types` feature, bringing strong types guarantees for details, so no `unwrap` / `expect` for the details type:
+
+**Warning**: Experimental, may change at any point in the future.
+
+Remember to add the `st_` in front of `get`, `get_amount`, `get_with_client` and `get_with_client_amount`.
+
+Nekos:
+
+```rust ,no_run
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let details = nekosbest::st_get::<nekosbest::Nekos>().await?.details;
+    println!("Source: {}", details.source_url);
+    println!("Artist: {}", details.artist_name);
+    println!("Artist link: {}", details.artist_href);
+    Ok(())
+}
+```
+
+Gif:
+
+```rust ,no_run
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let details = nekosbest::st_get::<nekosbest::Pat>().await?.details;
+    println!("Anime name: {}", details.anime_name);
+    Ok(())
+}
+```
+
 By using the `local` feature, you can completelly skip requests to the API.
 
 ```rust ,no_run
@@ -82,3 +112,7 @@ fn main() {
 
 Take a look at [the build script](build.rs) and [src/local.rs](src/local.rs) if
 you want to find out how it works.
+
+## Blocking client
+
+All functions become blocking when used with the "blocking" feature.

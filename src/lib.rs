@@ -31,8 +31,13 @@ pub enum NekosBestError {
 pub const API_VERSION: usize = 1;
 pub const BASE_URL: &str = "https://nekos.best/api/v1";
 
-#[cfg_attr(feature = "blocking", path = "blocking_impl.rs")]
-#[cfg_attr(not(feature = "blocking"), path = "async_impl.rs")]
+#[cfg(feature = "strong-types")]
+pub mod strong_types;
+
+#[cfg(feature = "strong-types")]
+pub use strong_types::*;
+
+#[path = "impl.rs"]
 mod implementation;
 
 pub use implementation::*;

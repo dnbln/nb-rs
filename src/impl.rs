@@ -5,21 +5,40 @@ use crate::{
     Category, NekosBestError, NekosBestResponse, NekosBestResponseSingle, BASE_URL,
 };
 
+#[cfg(feature = "blocking")]
+use nb_blocking_util::blocking;
+
+#[cfg(not(feature = "blocking"))]
+type ReqwestClient = reqwest::Client;
+#[cfg(feature = "blocking")]
 type ReqwestClient = reqwest::blocking::Client;
+
+
+#[cfg(feature = "strong-types")]
+#[path = "strong_types_impl.rs"]
+mod strong_types_impl;
+
+#[cfg(feature = "strong-types")]
+pub use strong_types_impl::{
+    get as st_get, get_amount as st_get_amount, get_with_client as st_get_with_client,
+    get_with_client_amount as st_get_with_client_amount,
+};
 
 /// Gets a single image, with a supplied client.
 ///
 /// # Errors
 /// Any errors that can happen, refer to [`NekosBestError`].
-pub fn get_with_client(
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_with_client(
     client: &ReqwestClient,
     category: impl Into<Category>,
 ) -> Result<NekosBestResponseSingle, NekosBestError> {
     let r = client
         .get(format!("{}/{}", BASE_URL, category.into()))
-        .send()?;
+        .send()
+        .await?;
 
-    let resp = r.error_for_status()?.json()?;
+    let resp = r.error_for_status()?.json().await?;
 
     Ok(resp)
 }
@@ -29,7 +48,8 @@ pub fn get_with_client(
 ///
 /// # Errors
 /// Any errors that can happen, refer to [`NekosBestError`].
-pub fn get_with_client_amount(
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_with_client_amount(
     client: &ReqwestClient,
     category: impl Into<Category>,
     amount: impl Into<u8>,
@@ -38,9 +58,9 @@ pub fn get_with_client_amount(
         .get(format!("{}/{}", BASE_URL, category.into()))
         .query(&[("amount", amount.into())]);
 
-    let r = req.send()?;
+    let r = req.send().await?;
 
-    let v = r.error_for_status()?.json::<NekosBestResponse>()?;
+    let v = r.error_for_status()?.json::<NekosBestResponse>().await?;
 
     Ok(v)
 }
@@ -49,26 +69,29 @@ pub fn get_with_client_amount(
 ///
 /// # Errors
 /// Any errors that can happen, refer to [`NekosBestError`].
-pub fn get(category: impl Into<Category>) -> Result<NekosBestResponseSingle, NekosBestError> {
-    get_with_client(&ReqwestClient::new(), category)
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get(category: impl Into<Category>) -> Result<NekosBestResponseSingle, NekosBestError> {
+    get_with_client(&ReqwestClient::new(), category).await
 }
 
 /// Gets `amount` images, with the default client.
 ///
 /// # Errors
 /// Any errors that can happen, refer to [`NekosBestError`].
-pub fn get_amount(
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_amount(
     category: impl Into<Category>,
     amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
-    get_with_client_amount(&ReqwestClient::new(), category, amount)
+    get_with_client_amount(&ReqwestClient::new(), category, amount).await
 }
 
-pub fn get_with_client_nekos_details(
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_with_client_nekos_details(
     client: &ReqwestClient,
     url: impl IntoUrl,
 ) -> Result<NekosDetails, NekosBestError> {
-    let resp = client.get(url).send()?.error_for_status()?;
+    let resp = client.get(url).send().await?.error_for_status()?;
     let details = resp
         .headers()
         .get("details")
@@ -87,15 +110,17 @@ pub fn get_with_client_nekos_details(
     Ok(d.details)
 }
 
-pub fn get_nekos_details(url: impl IntoUrl) -> Result<NekosDetails, NekosBestError> {
-    get_with_client_nekos_details(&ReqwestClient::new(), url)
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_nekos_details(url: impl IntoUrl) -> Result<NekosDetails, NekosBestError> {
+    get_with_client_nekos_details(&ReqwestClient::new(), url).await
 }
 
-pub fn get_with_client_gif_details(
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_with_client_gif_details(
     client: &ReqwestClient,
     url: impl IntoUrl,
 ) -> Result<GifDetails, NekosBestError> {
-    let resp = client.get(url).send()?.error_for_status()?;
+    let resp = client.get(url).send().await?.error_for_status()?;
     let details = resp
         .headers()
         .get("details")
@@ -114,6 +139,7 @@ pub fn get_with_client_gif_details(
     Ok(d.details)
 }
 
-pub fn get_gif_details(url: impl IntoUrl) -> Result<GifDetails, NekosBestError> {
-    get_with_client_gif_details(&ReqwestClient::new(), url)
+#[cfg_attr(feature = "blocking", blocking)]
+pub async fn get_gif_details(url: impl IntoUrl) -> Result<GifDetails, NekosBestError> {
+    get_with_client_gif_details(&ReqwestClient::new(), url).await
 }
