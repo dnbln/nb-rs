@@ -54,7 +54,7 @@ thor.rust.mkRustDerivation {
       ctr = ctalias "cargo test --release";
 
       # cargo fmt
-      cf = "cargo fmt --workspace -- --emit=files";
+      cf = "cargo fmt -- --emit=files";
     };
 
   phases.build = false;

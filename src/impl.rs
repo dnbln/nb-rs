@@ -13,7 +13,6 @@ type ReqwestClient = reqwest::Client;
 #[cfg(feature = "blocking")]
 type ReqwestClient = reqwest::blocking::Client;
 
-
 #[cfg(feature = "strong-types")]
 #[path = "strong_types_impl.rs"]
 mod strong_types_impl;

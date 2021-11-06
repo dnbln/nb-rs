@@ -29,7 +29,7 @@ async fn main() -> Result<(), E> {
 
         impl TryFrom<EndpointDescInternal> for EndpointDesc {
             type Error = <usize as FromStr>::Err;
-        
+
             fn try_from(d: EndpointDescInternal) -> Result<Self, Self::Error> {
                 Ok(Self {
                     min: d.min.parse()?,
@@ -39,7 +39,6 @@ async fn main() -> Result<(), E> {
                 })
             }
         }
-        
 
         const BASE_URL: &str = "https://nekos.best";
 

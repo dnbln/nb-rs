@@ -1,6 +1,6 @@
 use std::{collections::HashMap, convert::TryFrom};
 
-use crate::{BASE_URL, Category, NekosBestError, category::NoSuchVariant};
+use crate::{category::NoSuchVariant, Category, NekosBestError, BASE_URL};
 
 #[derive(serde::Deserialize)]
 struct MetricsInternal {

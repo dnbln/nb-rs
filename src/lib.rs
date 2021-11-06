@@ -77,8 +77,8 @@ mod test {
             try_endpoint,
             [
                 Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Nekos, Pat, Poke, Slap, Smile,
-                Smug, Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare,
-                Think, ThumbsUp, Wink,
+                Smug, Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug,
+                Sleep, Stare, Think, ThumbsUp, Wink,
             ]
         );
     }
@@ -103,8 +103,8 @@ mod test {
 
         const KNOWN_ENDPOINTS: &[&str] = &known_image_endpoints!([
             Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Nekos, Pat, Poke, Slap, Smile, Smug,
-            Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare, Think,
-            ThumbsUp, Wink,
+            Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare,
+            Think, ThumbsUp, Wink,
         ]);
 
         async fn get_endpoints(client: &reqwest::Client) -> HashMap<String, EndpointDesc> {
