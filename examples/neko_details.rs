@@ -3,7 +3,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let details = nekosbest::get(nekosbest::Category::Neko)
         .await?
         .details
-        .try_into_nekos()
+        .try_into_neko()
         .unwrap();
     println!("Source: {}", details.source_url);
     println!("Artist: {}", details.artist_name);

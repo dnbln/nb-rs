@@ -101,7 +101,7 @@ pub async fn get_with_client_neko_details(
     #[derive(serde::Deserialize)]
     #[serde(transparent)]
     struct UrlEncodedDetails {
-        #[serde(deserialize_with = "crate::details::url_encoded_nekos_details_deserialize")]
+        #[serde(deserialize_with = "crate::details::url_encoded_neko_details_deserialize")]
         details: NekoDetails,
     }
 

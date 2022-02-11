@@ -28,29 +28,29 @@ pub struct GifDetails {
 #[non_exhaustive]
 pub enum Details {
     // #[serde(flatten)]
-    Nekos(NekoDetails),
+    Neko(NekoDetails),
     // #[serde(flatten)]
     Gif(GifDetails),
 }
 
 impl Details {
-    /// Returns `true` if the details is [`Nekos`].
+    /// Returns `true` if the details is [`Neko`].
     ///
-    /// [`Nekos`]: Details::Nekos
+    /// [`Neko`]: Details::Neko
     pub fn is_nekos(&self) -> bool {
-        matches!(self, Self::Nekos(..))
+        matches!(self, Self::Neko(..))
     }
 
-    pub fn as_nekos(&self) -> Option<&NekoDetails> {
-        if let Self::Nekos(v) = self {
+    pub fn as_neko(&self) -> Option<&NekoDetails> {
+        if let Self::Neko(v) = self {
             Some(v)
         } else {
             None
         }
     }
 
-    pub fn try_into_nekos(self) -> Result<NekoDetails, Self> {
-        if let Self::Nekos(v) = self {
+    pub fn try_into_neko(self) -> Result<NekoDetails, Self> {
+        if let Self::Neko(v) = self {
             Ok(v)
         } else {
             Err(self)
@@ -83,7 +83,7 @@ impl Details {
 
 impl From<NekoDetails> for Details {
     fn from(v: NekoDetails) -> Self {
-        Self::Nekos(v)
+        Self::Neko(v)
     }
 }
 
@@ -102,7 +102,7 @@ fn decode_urlencoded<'de, De: Deserializer<'de>>(s: &str) -> Result<String, De::
     Ok(s)
 }
 
-pub fn url_encoded_nekos_details_deserialize<'de, De: Deserializer<'de>>(
+pub fn url_encoded_neko_details_deserialize<'de, De: Deserializer<'de>>(
     de: De,
 ) -> Result<NekoDetails, De::Error> {
     #[derive(Deserialize)]
