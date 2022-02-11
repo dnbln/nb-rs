@@ -40,7 +40,7 @@ async fn main() -> Result<(), E> {
             }
         }
 
-        const BASE_URL: &str = "https://nekos.best";
+        const BASE_URL: &str = "https://nekos.best/api/v2";
 
         async fn get_endpoints_data(
             client: &reqwest::Client,
@@ -67,7 +67,10 @@ async fn main() -> Result<(), E> {
 
         impl<'a> ToTokens for CategoryData<'a> {
             fn to_tokens(&self, tokens: &mut TokenStream) {
-                let name = format_ident!("{}{}", self.0[..1].to_uppercase(), &self.0[1..]);
+                let name = match self.0 {
+                    "thumbsup" => format_ident!("ThumbsUp"),
+                    _ => format_ident!("{}{}", self.0[..1].to_uppercase(), &self.0[1..]),
+                };
                 let min = self.1.min;
                 let max = self.1.max;
                 let format = &self.1.format;

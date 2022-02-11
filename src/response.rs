@@ -2,10 +2,21 @@ use std::ops::{Deref, DerefMut, Index, IndexMut};
 
 use crate::details::Details;
 
+#[derive(serde::Deserialize, Debug, Clone, Hash)]
+struct NekosBestResponseV2 {
+    results: Vec<NekosBestResponseSingle>,
+}
+
 /// A response from the api
 #[derive(serde::Deserialize, Debug, Clone, Hash)]
-#[serde(transparent)]
+#[serde(from = "NekosBestResponseV2")]
 pub struct NekosBestResponse(pub Vec<NekosBestResponseSingle>);
+
+impl From<NekosBestResponseV2> for NekosBestResponse {
+    fn from(r: NekosBestResponseV2) -> Self {
+        NekosBestResponse(r.results)
+    }
+}
 
 impl Index<usize> for NekosBestResponse {
     type Output = NekosBestResponseSingle;

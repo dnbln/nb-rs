@@ -13,6 +13,8 @@ pub enum Category {
     Hug,
     Kiss,
     Laugh,
+    Neko,
+    #[deprecated(since = "0.11.0", note = "Use `Neko` instead")]
     Nekos,
     Pat,
     Poke,
@@ -54,6 +56,8 @@ impl FromStr for Category {
             "hug" => Category::Hug,
             "kiss" => Category::Kiss,
             "laugh" => Category::Laugh,
+            "neko" => Category::Neko,
+            #[allow(deprecated)]
             "nekos" => Category::Nekos,
             "pat" => Category::Pat,
             "poke" => Category::Poke,
@@ -108,7 +112,8 @@ impl Category {
             Category::Hug => "hug",
             Category::Kiss => "kiss",
             Category::Laugh => "laugh",
-            Category::Nekos => "nekos",
+            #[allow(deprecated)]
+            Category::Neko | Category::Nekos => "neko",
             Category::Pat => "pat",
             Category::Poke => "poke",
             Category::Slap => "slap",

@@ -28,8 +28,8 @@ pub enum NekosBestError {
     Decoding(#[from] serde_json::Error),
 }
 
-pub const API_VERSION: usize = 1;
-pub const BASE_URL: &str = "https://nekos.best/api/v1";
+pub const API_VERSION: usize = 2;
+pub const BASE_URL: &str = "https://nekos.best/api/v2";
 
 #[cfg(feature = "strong-types")]
 pub mod strong_types;
@@ -76,7 +76,7 @@ mod test {
             &client,
             try_endpoint,
             [
-                Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Nekos, Pat, Poke, Slap, Smile,
+                Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Neko, Pat, Poke, Slap, Smile,
                 Smug, Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug,
                 Sleep, Stare, Think, ThumbsUp, Wink,
             ]
@@ -102,7 +102,7 @@ mod test {
         }
 
         const KNOWN_ENDPOINTS: &[&str] = &known_image_endpoints!([
-            Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Nekos, Pat, Poke, Slap, Smile, Smug,
+            Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Neko, Pat, Poke, Slap, Smile, Smug,
             Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare,
             Think, ThumbsUp, Wink,
         ]);

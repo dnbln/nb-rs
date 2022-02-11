@@ -1,6 +1,6 @@
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let resp = nekosbest::st_get::<nekosbest::Nekos>().await?;
+    let resp = nekosbest::st_get::<nekosbest::Neko>().await?;
     let img_url = resp.url();
     println!("{}", img_url);
     let details = resp.details();

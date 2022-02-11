@@ -7,11 +7,14 @@ use serde::{Deserialize, Deserializer};
 /// also returns the source url, the name and a
 /// link to the artist that made it.
 #[derive(Deserialize, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct NekosDetails {
+pub struct NekoDetails {
     pub artist_href: String,
     pub artist_name: String,
     pub source_url: String,
 }
+
+#[deprecated(since = "0.11.0", note = "Use `NekoDetails` instead")]
+pub type NekosDetails = NekoDetails;
 
 /// In the case of gif endpoints, the API also
 /// returns the anime name.
@@ -25,7 +28,7 @@ pub struct GifDetails {
 #[non_exhaustive]
 pub enum Details {
     // #[serde(flatten)]
-    Nekos(NekosDetails),
+    Nekos(NekoDetails),
     // #[serde(flatten)]
     Gif(GifDetails),
 }
@@ -38,7 +41,7 @@ impl Details {
         matches!(self, Self::Nekos(..))
     }
 
-    pub fn as_nekos(&self) -> Option<&NekosDetails> {
+    pub fn as_nekos(&self) -> Option<&NekoDetails> {
         if let Self::Nekos(v) = self {
             Some(v)
         } else {
@@ -46,7 +49,7 @@ impl Details {
         }
     }
 
-    pub fn try_into_nekos(self) -> Result<NekosDetails, Self> {
+    pub fn try_into_nekos(self) -> Result<NekoDetails, Self> {
         if let Self::Nekos(v) = self {
             Ok(v)
         } else {
@@ -78,8 +81,8 @@ impl Details {
     }
 }
 
-impl From<NekosDetails> for Details {
-    fn from(v: NekosDetails) -> Self {
+impl From<NekoDetails> for Details {
+    fn from(v: NekoDetails) -> Self {
         Self::Nekos(v)
     }
 }
@@ -101,7 +104,7 @@ fn decode_urlencoded<'de, De: Deserializer<'de>>(s: &str) -> Result<String, De::
 
 pub fn url_encoded_nekos_details_deserialize<'de, De: Deserializer<'de>>(
     de: De,
-) -> Result<NekosDetails, De::Error> {
+) -> Result<NekoDetails, De::Error> {
     #[derive(Deserialize)]
     struct Internal {
         artist_href: String,
@@ -115,7 +118,7 @@ pub fn url_encoded_nekos_details_deserialize<'de, De: Deserializer<'de>>(
     let artist_name = decode_urlencoded::<De>(&internal.artist_name)?;
     let source_url = decode_urlencoded::<De>(&internal.source_url)?;
 
-    Ok(NekosDetails {
+    Ok(NekoDetails {
         artist_href,
         artist_name,
         source_url,

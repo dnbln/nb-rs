@@ -21,7 +21,11 @@ pub async fn get_with_client<C: STCategory>(
         .send()
         .await?;
 
-    let resp = r.error_for_status()?.json().await?;
+    let mut resp = r
+        .error_for_status()?
+        .json::<STNekosBestResponse<C>>()
+        .await?;
+    let resp = resp.0.pop().ok_or(NekosBestError::NotFound)?;
 
     Ok(resp)
 }

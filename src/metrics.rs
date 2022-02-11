@@ -5,6 +5,7 @@ use crate::{category::NoSuchVariant, Category, NekosBestError, BASE_URL};
 #[derive(serde::Deserialize)]
 struct MetricsInternal {
     per_id: HashMap<String, String>,
+    #[serde(rename = "per_rand")]
     per_random: HashMap<String, String>,
     #[serde(with = "humantime_serde")]
     reset_in: std::time::Duration,

@@ -6,7 +6,7 @@ use std::{
 use serde::Deserialize;
 
 use crate::{
-    details::{GifDetails, NekosDetails},
+    details::{GifDetails, NekoDetails},
     Category,
 };
 
@@ -55,11 +55,23 @@ gif_endpoints!([
 ]);
 
 #[derive(Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Nekos;
+pub struct Neko;
 
-impl STCategory for Nekos {
-    const CATEGORY: Category = Category::Nekos;
-    type Details = NekosDetails;
+impl STCategory for Neko {
+    const CATEGORY: Category = Category::Neko;
+    type Details = NekoDetails;
+}
+
+#[deprecated(since = "0.11.0", note = "Use `Neko` instead")]
+pub type Nekos = Neko;
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(bound(deserialize = "C: STCategory"))]
+struct STNekosBestResponseV2<C>
+where
+    C: STCategory,
+{
+    results: Vec<STNekosBestResponseSingle<C>>,
 }
 
 /// A response from the api
@@ -73,7 +85,16 @@ impl<'de, C: STCategory> Deserialize<'de> for STNekosBestResponse<C> {
     where
         D: serde::Deserializer<'de>,
     {
-        Vec::<STNekosBestResponseSingle<C>>::deserialize(deserializer).map(Self)
+        STNekosBestResponseV2::<C>::deserialize(deserializer).map(Self::from)
+    }
+}
+
+impl<C> From<STNekosBestResponseV2<C>> for STNekosBestResponse<C>
+where
+    C: STCategory,
+{
+    fn from(v: STNekosBestResponseV2<C>) -> Self {
+        Self(v.results)
     }
 }
 

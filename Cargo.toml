@@ -1,7 +1,7 @@
 [package]
 name = "nekosbest"
 description = "nekos.best API wrapper"
-version = "0.10.1"
+version = "0.11.0-alpha.1"
 edition = "2021"
 license = "CC0-1.0"
 repository = "https://github.com/dblanovschi/nb-rs"
@@ -40,7 +40,7 @@ version = "0.8"
 optional = true
 
 [dependencies.nb-blocking-util]
-version = "=0.10.1"
+version = "0.10.1"
 optional = true
 path = "./nb-blocking-util"
 
@@ -60,7 +60,7 @@ proc-macro2 = "1"
 
 [[example]]
 name = "from_local_nekos"
-path = "examples/from_local_nekos.rs"
+path = "examples/from_local_neko.rs"
 required-features = ["local"]
 
 [[example]]

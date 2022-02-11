@@ -1,7 +1,7 @@
 use reqwest::IntoUrl;
 
 use crate::{
-    details::{GifDetails, NekosDetails},
+    details::{GifDetails, NekoDetails},
     Category, NekosBestError, NekosBestResponse, NekosBestResponseSingle, BASE_URL,
 };
 
@@ -37,7 +37,8 @@ pub async fn get_with_client(
         .send()
         .await?;
 
-    let resp = r.error_for_status()?.json().await?;
+    let mut resp = r.error_for_status()?.json::<NekosBestResponse>().await?;
+    let resp = resp.0.pop().ok_or(NekosBestError::NotFound)?;
 
     Ok(resp)
 }
@@ -86,10 +87,10 @@ pub async fn get_amount(
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
-pub async fn get_with_client_nekos_details(
+pub async fn get_with_client_neko_details(
     client: &ReqwestClient,
     url: impl IntoUrl,
-) -> Result<NekosDetails, NekosBestError> {
+) -> Result<NekoDetails, NekosBestError> {
     let resp = client.get(url).send().await?.error_for_status()?;
     let details = resp
         .headers()
@@ -101,7 +102,7 @@ pub async fn get_with_client_nekos_details(
     #[serde(transparent)]
     struct UrlEncodedDetails {
         #[serde(deserialize_with = "crate::details::url_encoded_nekos_details_deserialize")]
-        details: NekosDetails,
+        details: NekoDetails,
     }
 
     let d = serde_json::from_str::<UrlEncodedDetails>(&details_text)?;
@@ -110,8 +111,8 @@ pub async fn get_with_client_nekos_details(
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
-pub async fn get_nekos_details(url: impl IntoUrl) -> Result<NekosDetails, NekosBestError> {
-    get_with_client_nekos_details(&ReqwestClient::new(), url).await
+pub async fn get_neko_details(url: impl IntoUrl) -> Result<NekoDetails, NekosBestError> {
+    get_with_client_neko_details(&ReqwestClient::new(), url).await
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
