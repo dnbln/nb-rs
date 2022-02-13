@@ -2,15 +2,23 @@
 //! Refer to [`NekosDetails`].
 
 use serde::{Deserialize, Deserializer};
+use url::Url;
 
 /// In the case of [`Category::Nekos`], the API
 /// also returns the source url, the name and a
 /// link to the artist that made it.
 #[derive(Deserialize, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NekoDetails {
-    pub artist_href: String,
+    #[serde(deserialize_with = "deserialize_url")]
+    pub artist_href: Url,
     pub artist_name: String,
-    pub source_url: String,
+    #[serde(deserialize_with = "deserialize_url")]
+    pub source_url: Url,
+}
+
+fn deserialize_url<'de, D: Deserializer<'de>>(de: D) -> Result<Url, D::Error> {
+    let s = String::deserialize(de)?;
+    Url::parse(&s).map_err(serde::de::Error::custom)
 }
 
 #[deprecated(since = "0.11.0", note = "Use `NekoDetails` instead")]

@@ -123,8 +123,12 @@ pub async fn get_with_client_neko_details(
 
     let details = NekoDetails {
         artist_name: header_deserialize_urlencoded(headers, "artist_name")?.into_owned(),
-        artist_href: header_deserialize_urlencoded(headers, "artist_href")?.into_owned(),
-        source_url: header_deserialize_urlencoded(headers, "source_url")?.into_owned(),
+        artist_href: header_deserialize_urlencoded(headers, "artist_href")?
+            .into_owned()
+            .parse()?,
+        source_url: header_deserialize_urlencoded(headers, "source_url")?
+            .into_owned()
+            .parse()?,
     };
 
     Ok(details)

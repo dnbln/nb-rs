@@ -6,7 +6,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ```toml
 [dependencies]
-nekosbest = "0.11.0-alpha.3"
+nekosbest = "0.11.0-alpha.4"
 ```
 
 ## Example
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let details = nekosbest::get(nekosbest::Category::Neko)
         .await?
         .details
-        .try_into_nekos()
+        .try_into_neko()
         .unwrap();
     println!("Source: {}", details.source_url);
     println!("Artist: {}", details.artist_name);

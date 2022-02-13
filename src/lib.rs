@@ -13,6 +13,7 @@ pub mod details;
 pub mod response;
 
 pub use category::Category;
+use url::ParseError;
 
 pub use response::{NekosBestResponse, NekosBestResponseSingle};
 
@@ -29,6 +30,9 @@ pub enum NekosBestError {
 
     #[error("decoding header values")]
     DecodingHeader(#[from] HeaderDeserializeUrlEncodedError),
+
+    #[error("error parsing url")]
+    UrlParseError(#[from] ParseError),
 }
 
 pub const API_VERSION: usize = 2;
