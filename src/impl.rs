@@ -1,4 +1,7 @@
+use reqwest::header::HeaderMap;
 use reqwest::IntoUrl;
+use std::borrow::Cow;
+use std::string::FromUtf8Error;
 
 use crate::{
     details::{GifDetails, NekoDetails},
@@ -86,28 +89,45 @@ pub async fn get_amount(
     get_with_client_amount(&ReqwestClient::new(), category, amount).await
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum HeaderDeserializeUrlEncodedError {
+    #[error("Missing header")]
+    MissingHeader,
+    #[error("Not ASCII header")]
+    NotAsciiHeader(#[from] reqwest::header::ToStrError),
+    #[error("UTF8 error")]
+    Utf8(#[from] FromUtf8Error),
+}
+
+fn header_deserialize_urlencoded<'a>(
+    headers: &'a HeaderMap,
+    name: &str,
+) -> Result<Cow<'a, str>, HeaderDeserializeUrlEncodedError> {
+    let s = headers
+        .get(name)
+        .ok_or(HeaderDeserializeUrlEncodedError::MissingHeader)?
+        .to_str()?;
+
+    let s = urlencoding::decode(s)?;
+
+    Ok(s)
+}
+
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client_neko_details(
     client: &ReqwestClient,
     url: impl IntoUrl,
 ) -> Result<NekoDetails, NekosBestError> {
     let resp = client.get(url).send().await?.error_for_status()?;
-    let details = resp
-        .headers()
-        .get("details")
-        .ok_or(NekosBestError::NotFound)?;
-    let details_text = details.to_str().expect("Not ascii content in details");
+    let headers = resp.headers();
 
-    #[derive(serde::Deserialize)]
-    #[serde(transparent)]
-    struct UrlEncodedDetails {
-        #[serde(deserialize_with = "crate::details::url_encoded_neko_details_deserialize")]
-        details: NekoDetails,
-    }
+    let details = NekoDetails {
+        artist_name: header_deserialize_urlencoded(headers, "artist_name")?.into_owned(),
+        artist_href: header_deserialize_urlencoded(headers, "artist_href")?.into_owned(),
+        source_url: header_deserialize_urlencoded(headers, "source_url")?.into_owned(),
+    };
 
-    let d = serde_json::from_str::<UrlEncodedDetails>(&details_text)?;
-
-    Ok(d.details)
+    Ok(details)
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
@@ -121,22 +141,13 @@ pub async fn get_with_client_gif_details(
     url: impl IntoUrl,
 ) -> Result<GifDetails, NekosBestError> {
     let resp = client.get(url).send().await?.error_for_status()?;
-    let details = resp
-        .headers()
-        .get("details")
-        .ok_or(NekosBestError::NotFound)?;
-    let details_text = details.to_str().expect("Not ascii content in details");
+    let headers = resp.headers();
 
-    #[derive(serde::Deserialize)]
-    #[serde(transparent)]
-    struct UrlEncodedDetails {
-        #[serde(deserialize_with = "crate::details::url_encoded_gif_details_deserialize")]
-        details: GifDetails,
-    }
+    let details = GifDetails {
+        anime_name: header_deserialize_urlencoded(headers, "anime_name")?.into_owned(),
+    };
 
-    let d = serde_json::from_str::<UrlEncodedDetails>(&details_text)?;
-
-    Ok(d.details)
+    Ok(details)
 }
 
 #[cfg_attr(feature = "blocking", blocking)]

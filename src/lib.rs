@@ -26,6 +26,9 @@ pub enum NekosBestError {
 
     #[error("decoding")]
     Decoding(#[from] serde_json::Error),
+
+    #[error("decoding header values")]
+    DecodingHeader(#[from] HeaderDeserializeUrlEncodedError),
 }
 
 pub const API_VERSION: usize = 2;
