@@ -83,9 +83,9 @@ mod test {
             &client,
             try_endpoint,
             [
-                Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Neko, Pat, Poke, Slap, Smile,
-                Smug, Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug,
-                Sleep, Stare, Think, ThumbsUp, Wink,
+                Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Happy, Highfive, Hug,
+                Kiss, Laugh, Neko, Pat, Poke, Pout, Shrug, Slap, Sleep, Smile, Smug, Stare, Think,
+                ThumbsUp, Tickle, Wave, Wink,
             ]
         );
     }
@@ -93,26 +93,6 @@ mod test {
     #[tokio::test]
     async fn no_new_endpoints() {
         let client = reqwest::Client::new();
-
-        macro_rules! known_image_endpoints {
-            ([$($(#[$at:meta])* $category:ident),* $(,)?]) => {
-                [
-                    $(
-                        $(#[$at])* {known_image_endpoints!($category)},
-                    )*
-                ]
-            };
-
-            ($category:ident $(,)?) => {
-                Category::$category.to_url_path()
-            };
-        }
-
-        const KNOWN_ENDPOINTS: &[&str] = &known_image_endpoints!([
-            Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Neko, Pat, Poke, Slap, Smile, Smug,
-            Tickle, Wave, Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare,
-            Think, ThumbsUp, Wink,
-        ]);
 
         async fn get_endpoints(client: &reqwest::Client) -> HashMap<String, EndpointDesc> {
             client
@@ -138,7 +118,7 @@ mod test {
 
         let mut unknown_endpoints = vec![];
         for item in list {
-            if !KNOWN_ENDPOINTS.contains(&item.as_str()) {
+            if item.as_str().parse::<Category>().is_err() {
                 unknown_endpoints.push(format!("{}/{}", BASE_URL, item));
             }
         }

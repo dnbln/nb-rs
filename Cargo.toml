@@ -1,7 +1,7 @@
 [package]
 name = "nekosbest"
 description = "nekos.best API wrapper"
-version = "0.11.0-alpha.4"
+version = "0.11.0"
 edition = "2021"
 license = "CC0-1.0"
 repository = "https://github.com/dnbln/nb-rs"
@@ -47,6 +47,7 @@ path = "./nb-blocking-util"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
+
 
 [build-dependencies]
 tokio = { version = "1", features = ["full"] }

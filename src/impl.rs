@@ -1,6 +1,5 @@
 use reqwest::header::HeaderMap;
 use reqwest::IntoUrl;
-use std::borrow::Cow;
 use std::string::FromUtf8Error;
 
 use crate::{
@@ -99,16 +98,16 @@ pub enum HeaderDeserializeUrlEncodedError {
     Utf8(#[from] FromUtf8Error),
 }
 
-fn header_deserialize_urlencoded<'a>(
-    headers: &'a HeaderMap,
+fn header_deserialize_urlencoded(
+    headers: &HeaderMap,
     name: &str,
-) -> Result<Cow<'a, str>, HeaderDeserializeUrlEncodedError> {
+) -> Result<String, HeaderDeserializeUrlEncodedError> {
     let s = headers
         .get(name)
         .ok_or(HeaderDeserializeUrlEncodedError::MissingHeader)?
         .to_str()?;
 
-    let s = urlencoding::decode(s)?;
+    let s = urlencoding::decode(s)?.replace("+", " ");
 
     Ok(s)
 }
@@ -122,13 +121,9 @@ pub async fn get_with_client_neko_details(
     let headers = resp.headers();
 
     let details = NekoDetails {
-        artist_name: header_deserialize_urlencoded(headers, "artist_name")?.into_owned(),
-        artist_href: header_deserialize_urlencoded(headers, "artist_href")?
-            .into_owned()
-            .parse()?,
-        source_url: header_deserialize_urlencoded(headers, "source_url")?
-            .into_owned()
-            .parse()?,
+        artist_name: header_deserialize_urlencoded(headers, "artist_name")?,
+        artist_href: header_deserialize_urlencoded(headers, "artist_href")?.parse()?,
+        source_url: header_deserialize_urlencoded(headers, "source_url")?.parse()?,
     };
 
     Ok(details)
@@ -148,7 +143,7 @@ pub async fn get_with_client_gif_details(
     let headers = resp.headers();
 
     let details = GifDetails {
-        anime_name: header_deserialize_urlencoded(headers, "anime_name")?.into_owned(),
+        anime_name: header_deserialize_urlencoded(headers, "anime_name")?,
     };
 
     Ok(details)
