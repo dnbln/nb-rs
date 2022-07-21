@@ -1,3 +1,4 @@
+use reqwest::RequestBuilder;
 use std::{
     fmt::Debug,
     ops::{Deref, DerefMut, Index, IndexMut},
@@ -6,13 +7,14 @@ use std::{
 use serde::Deserialize;
 
 use crate::{
-    details::{GifDetails, NekoDetails},
+    details::{GifDetails, ImageDetails},
     Category,
 };
 
 pub trait STCategory: Sized {
     const CATEGORY: Category;
     type Details: for<'de> Deserialize<'de> + Debug + Clone + 'static;
+    type SearchQueryType: STNekosBestSearchQueryType;
 }
 
 #[derive(Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -44,23 +46,36 @@ macro_rules! gif_endpoints {
         impl STCategory for $name {
             const CATEGORY: Category = Category::$name;
             type Details = GifDetails;
+            type SearchQueryType = STNekosBestSearchQueryGifType;
         }
     };
 }
 
 gif_endpoints!([
-    Baka, Cry, Cuddle, Dance, Feed, Hug, Kiss, Laugh, Pat, Poke, Slap, Smile, Smug, Tickle, Wave,
-    Bite, Blush, Bored, Facepalm, Happy, Highfive, Pout, Shrug, Sleep, Stare, Think, ThumbsUp,
-    Wink,
+    Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Handhold, Happy, Highfive, Hug,
+    Kick, Kiss, Laugh, Pat, Poke, Pout, Punch, Shoot, Shrug, Slap, Sleep, Smile, Smug, Stare,
+    Think, ThumbsUp, Tickle, Wave, Wink,
 ]);
 
-#[derive(Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Neko;
+macro_rules! image_endpoints {
+    ([$($name:ident),* $(,)?]) => {
+        $(
+            image_endpoints!($name);
+        )*
+    };
+    ($name:ident) => {
+        #[derive(Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        pub struct $name;
 
-impl STCategory for Neko {
-    const CATEGORY: Category = Category::Neko;
-    type Details = NekoDetails;
+        impl STCategory for $name {
+            const CATEGORY: Category = Category::$name;
+            type Details = ImageDetails;
+            type SearchQueryType = STNekosBestSearchQueryImageType;
+        }
+    };
 }
+
+image_endpoints!([Kitsune, Neko, Waifu]);
 
 #[deprecated(since = "0.11.0", note = "Use `Neko` instead")]
 pub type Nekos = Neko;
@@ -76,9 +91,7 @@ where
 
 /// A response from the api
 #[derive(Debug, Clone)]
-pub struct STNekosBestResponse<C>(pub Vec<STNekosBestResponseSingle<C>>)
-where
-    C: STCategory;
+pub struct STNekosBestResponse<C: STCategory>(pub Vec<STNekosBestResponseSingle<C>>);
 
 impl<'de, C: STCategory> Deserialize<'de> for STNekosBestResponse<C> {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -124,4 +137,52 @@ impl<C: STCategory> DerefMut for STNekosBestResponse<C> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
+}
+
+#[derive(serde::Serialize)]
+pub struct STNekosBestSearchQuery<C: STCategory> {
+    pub(crate) query: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) amount: Option<usize>,
+
+    #[serde(skip)]
+    _phantom: std::marker::PhantomData<C>,
+}
+
+impl<C: STCategory> STNekosBestSearchQuery<C> {
+    pub fn new(query: impl Into<String>) -> Self {
+        Self {
+            query: query.into(),
+            amount: None,
+
+            _phantom: std::marker::PhantomData,
+        }
+    }
+
+    pub fn amount(mut self, amount: usize) -> Self {
+        self.amount = Some(amount);
+        self
+    }
+
+    pub(crate) fn apply_to(&self, r: RequestBuilder) -> RequestBuilder {
+        r.query(self)
+            .query(&[("type", C::SearchQueryType::TYPE)])
+            .query(&[("category", C::CATEGORY.to_url_path())])
+    }
+}
+
+pub trait STNekosBestSearchQueryType {
+    const TYPE: i32;
+}
+
+pub struct STNekosBestSearchQueryImageType;
+
+impl STNekosBestSearchQueryType for STNekosBestSearchQueryImageType {
+    const TYPE: i32 = 1;
+}
+
+pub struct STNekosBestSearchQueryGifType;
+
+impl STNekosBestSearchQueryType for STNekosBestSearchQueryGifType {
+    const TYPE: i32 = 2;
 }

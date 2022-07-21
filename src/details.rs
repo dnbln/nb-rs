@@ -1,14 +1,11 @@
-//! Details of an [`crate::Category::Nekos`] image.
-//! Refer to [`NekosDetails`].
-
 use serde::{Deserialize, Deserializer};
 use url::Url;
 
-/// In the case of [`Category::Nekos`], the API
+/// In the case of [`Category::Neko`], the API
 /// also returns the source url, the name and a
 /// link to the artist that made it.
 #[derive(Deserialize, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct NekoDetails {
+pub struct ImageDetails {
     #[serde(deserialize_with = "deserialize_url")]
     pub artist_href: Url,
     pub artist_name: String,
@@ -21,9 +18,6 @@ fn deserialize_url<'de, D: Deserializer<'de>>(de: D) -> Result<Url, D::Error> {
     Url::parse(&s).map_err(serde::de::Error::custom)
 }
 
-#[deprecated(since = "0.11.0", note = "Use `NekoDetails` instead")]
-pub type NekosDetails = NekoDetails;
-
 /// In the case of gif endpoints, the API also
 /// returns the anime name.
 #[derive(Deserialize, Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -35,9 +29,7 @@ pub struct GifDetails {
 #[serde(untagged)]
 #[non_exhaustive]
 pub enum Details {
-    // #[serde(flatten)]
-    Neko(NekoDetails),
-    // #[serde(flatten)]
+    Image(ImageDetails),
     Gif(GifDetails),
 }
 
@@ -46,19 +38,19 @@ impl Details {
     ///
     /// [`Neko`]: Details::Neko
     pub fn is_nekos(&self) -> bool {
-        matches!(self, Self::Neko(..))
+        matches!(self, Self::Image(..))
     }
 
-    pub fn as_neko(&self) -> Option<&NekoDetails> {
-        if let Self::Neko(v) = self {
+    pub fn as_neko(&self) -> Option<&ImageDetails> {
+        if let Self::Image(v) = self {
             Some(v)
         } else {
             None
         }
     }
 
-    pub fn try_into_neko(self) -> Result<NekoDetails, Self> {
-        if let Self::Neko(v) = self {
+    pub fn try_into_neko(self) -> Result<ImageDetails, Self> {
+        if let Self::Image(v) = self {
             Ok(v)
         } else {
             Err(self)
@@ -89,9 +81,9 @@ impl Details {
     }
 }
 
-impl From<NekoDetails> for Details {
-    fn from(v: NekoDetails) -> Self {
-        Self::Neko(v)
+impl From<ImageDetails> for Details {
+    fn from(v: ImageDetails) -> Self {
+        Self::Image(v)
     }
 }
 
