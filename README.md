@@ -6,7 +6,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ```toml
 [dependencies]
-nekosbest = "0.11.0"
+nekosbest = "0.12.0"
 ```
 
 ## Example
