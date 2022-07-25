@@ -67,6 +67,7 @@ categories! {
     Happy => "happy",
     Highfive => "highfive",
     Hug => "hug",
+    Husbando => "husbando",
     Kick => "kick",
     Kiss => "kiss",
     Kitsune => "kitsune",
@@ -89,6 +90,7 @@ categories! {
     Waifu => "waifu",
     Wave => "wave",
     Wink => "wink",
+    Yeet => "yeet",
 }
 
 #[derive(thiserror::Error, Debug)]

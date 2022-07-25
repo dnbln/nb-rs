@@ -54,7 +54,7 @@ macro_rules! gif_endpoints {
 gif_endpoints!([
     Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Handhold, Happy, Highfive, Hug,
     Kick, Kiss, Laugh, Pat, Poke, Pout, Punch, Shoot, Shrug, Slap, Sleep, Smile, Smug, Stare,
-    Think, ThumbsUp, Tickle, Wave, Wink,
+    Think, ThumbsUp, Tickle, Wave, Wink, Yeet
 ]);
 
 macro_rules! image_endpoints {
@@ -75,7 +75,7 @@ macro_rules! image_endpoints {
     };
 }
 
-image_endpoints!([Kitsune, Neko, Waifu]);
+image_endpoints!([Husbando, Kitsune, Neko, Waifu]);
 
 #[deprecated(since = "0.11.0", note = "Use `Neko` instead")]
 pub type Nekos = Neko;

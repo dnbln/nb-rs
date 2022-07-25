@@ -115,7 +115,7 @@ fn header_deserialize_urlencoded(
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
-pub async fn get_with_client_neko_details(
+pub async fn get_with_client_image_details(
     client: &ReqwestClient,
     url: impl IntoUrl,
 ) -> Result<ImageDetails, NekosBestError> {
@@ -132,8 +132,8 @@ pub async fn get_with_client_neko_details(
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
-pub async fn get_neko_details(url: impl IntoUrl) -> Result<ImageDetails, NekosBestError> {
-    get_with_client_neko_details(&ReqwestClient::new(), url).await
+pub async fn get_image_details(url: impl IntoUrl) -> Result<ImageDetails, NekosBestError> {
+    get_with_client_image_details(&ReqwestClient::new(), url).await
 }
 
 #[cfg_attr(feature = "blocking", blocking)]

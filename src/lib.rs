@@ -84,8 +84,8 @@ mod test {
             try_endpoint,
             [
                 Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Happy, Highfive, Hug,
-                Kiss, Laugh, Neko, Pat, Poke, Pout, Shrug, Slap, Sleep, Smile, Smug, Stare, Think,
-                ThumbsUp, Tickle, Wave, Wink,
+                Husbando, Kiss, Laugh, Neko, Pat, Poke, Pout, Shrug, Slap, Sleep, Smile, Smug,
+                Stare, Think, ThumbsUp, Tickle, Wave, Wink, Yeet
             ]
         );
     }

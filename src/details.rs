@@ -34,14 +34,14 @@ pub enum Details {
 }
 
 impl Details {
-    /// Returns `true` if the details is [`Neko`].
+    /// Returns `true` if the details is [`Image`].
     ///
-    /// [`Neko`]: Details::Neko
-    pub fn is_nekos(&self) -> bool {
+    /// [`Image`]: Details::Image
+    pub fn is_image(&self) -> bool {
         matches!(self, Self::Image(..))
     }
 
-    pub fn as_neko(&self) -> Option<&ImageDetails> {
+    pub fn as_image(&self) -> Option<&ImageDetails> {
         if let Self::Image(v) = self {
             Some(v)
         } else {
@@ -49,7 +49,7 @@ impl Details {
         }
     }
 
-    pub fn try_into_neko(self) -> Result<ImageDetails, Self> {
+    pub fn try_into_image(self) -> Result<ImageDetails, Self> {
         if let Self::Image(v) = self {
             Ok(v)
         } else {
