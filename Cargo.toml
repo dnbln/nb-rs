@@ -1,11 +1,12 @@
 [package]
 name = "nekosbest"
 description = "nekos.best API wrapper"
-version = "0.14.1"
+version = "0.15.0"
 edition = "2021"
 license = "CC0-1.0"
 repository = "https://github.com/dnbln/nb-rs"
 readme = "README.md"
+include = ["/examples", "/tests", "/src", "/rustdoc-endpoints.json", "/build.rs", "/Cargo.toml", "/LICENSE", "/README.md"]
 
 [package.metadata.docs.rs]
 features = ["local"]

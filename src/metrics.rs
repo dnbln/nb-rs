@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::{collections::HashMap, convert::TryFrom};
 
 use crate::{category::NoSuchVariant, Category, NekosBestError, BASE_URL};
@@ -5,8 +6,8 @@ use crate::{category::NoSuchVariant, Category, NekosBestError, BASE_URL};
 #[derive(serde::Deserialize)]
 struct MetricsInternal {
     per_id: HashMap<String, String>,
-    #[serde(rename = "per_rand")]
     per_random: HashMap<String, String>,
+    total: String,
     #[serde(with = "humantime_serde")]
     reset_in: std::time::Duration,
 }
@@ -26,6 +27,7 @@ impl TryFrom<MetricsInternal> for Metrics {
         MetricsInternal {
             per_id,
             per_random,
+            total,
             reset_in,
         }: MetricsInternal,
     ) -> Result<Self, Self::Error> {
@@ -33,7 +35,7 @@ impl TryFrom<MetricsInternal> for Metrics {
             per_id: per_id
                 .into_iter()
                 .map(
-                    |(category, count)| -> Result<(Category, usize), ParseMetricsError> {
+                    |(category, count)| -> Result<(CategoryOrTotal, usize), ParseMetricsError> {
                         Ok((category.parse()?, count.parse()?))
                     },
                 )
@@ -41,21 +43,40 @@ impl TryFrom<MetricsInternal> for Metrics {
             per_random: per_random
                 .into_iter()
                 .map(
-                    |(category, count)| -> Result<(Category, usize), ParseMetricsError> {
+                    |(category, count)| -> Result<(CategoryOrTotal, usize), ParseMetricsError> {
                         Ok((category.parse()?, count.parse()?))
                     },
                 )
                 .collect::<Result<_, ParseMetricsError>>()?,
+            total: total.parse()?,
             reset_in,
         })
+    }
+}
+
+#[derive(Copy, Clone, Hash, Debug, PartialEq, Eq)]
+pub enum CategoryOrTotal {
+    Category(Category),
+    Total,
+}
+
+impl FromStr for CategoryOrTotal {
+    type Err = NoSuchVariant;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "total" => Ok(CategoryOrTotal::Total),
+            _ => Ok(CategoryOrTotal::Category(s.parse()?)),
+        }
     }
 }
 
 #[derive(serde::Deserialize)]
 #[serde(try_from = "MetricsInternal")]
 pub struct Metrics {
-    pub per_id: HashMap<Category, usize>,
-    pub per_random: HashMap<Category, usize>,
+    pub per_id: HashMap<CategoryOrTotal, usize>,
+    pub per_random: HashMap<CategoryOrTotal, usize>,
+    pub total: usize,
     pub reset_in: std::time::Duration,
 }
 

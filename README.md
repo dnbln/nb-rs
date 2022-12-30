@@ -6,7 +6,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ```toml
 [dependencies]
-nekosbest = "0.14.0"
+nekosbest = "0.15"
 ```
 
 ## Example
@@ -114,7 +114,7 @@ Or if you have your own random number:
 
 ```rust ,no_run
 fn main() {
-    let your_random = unimplemented!();
+    let your_random = todo!();
     let img_url = nekosbest::local::Neko.get_random(your_random);
     println!("{}", img_url);
     Ok(())

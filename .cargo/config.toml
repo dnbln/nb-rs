@@ -1,0 +1,23 @@
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    "-Clink-arg=-fuse-ld=lld",
+]
+
+[target.x86_64-pc-windows-msvc]
+linker = "rust-lld.exe"
+
+[target.x86_64-apple-darwin]
+rustflags = [
+    "-Csplit-debuginfo=unpacked",
+]
+[profile.dev]
+opt-level = 0
+debug = 2
+incremental = true
+codegen-units = 512
+
+[profile.release]
+opt-level = 3
+debug = 0
+incremental = false
+codegen-units = 256
