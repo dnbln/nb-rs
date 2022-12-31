@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Or with an amount(amount is capped at 20 by the server):
+Or with an amount (amount is capped at 20 by the server):
 
 ```rust ,no_run
 #[tokio::main]
@@ -53,7 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-For everything else(gif endpoints):
+For everything else (GIF endpoints):
 
 ```rust ,no_run
 #[tokio::main]
@@ -74,7 +74,7 @@ Or with the `strong-types` feature, bringing strong types guarantees for details
 
 Remember to add the `st_` in front of `get`, `get_amount`, `get_with_client` and `get_with_client_amount`.
 
-Nekos:
+Neko:
 
 ```rust ,no_run
 #[tokio::main]
@@ -88,7 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-Gif:
+GIF:
 
 ```rust ,no_run
 #[tokio::main]
