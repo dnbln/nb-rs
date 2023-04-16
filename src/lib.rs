@@ -2,9 +2,6 @@
 
 pub extern crate reqwest;
 
-#[cfg(feature = "local")]
-pub mod local;
-
 #[cfg(feature = "metrics")]
 pub mod metrics;
 

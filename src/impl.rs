@@ -1,5 +1,5 @@
 use reqwest::header::HeaderMap;
-use reqwest::{IntoUrl, RequestBuilder};
+use reqwest::{IntoUrl};
 use serde::Serializer;
 use std::string::FromUtf8Error;
 
@@ -15,6 +15,11 @@ use nb_blocking_util::blocking;
 type ReqwestClient = reqwest::Client;
 #[cfg(feature = "blocking")]
 type ReqwestClient = reqwest::blocking::Client;
+
+#[cfg(not(feature = "blocking"))]
+type ReqBuilder = reqwest::RequestBuilder;
+#[cfg(feature = "blocking")]
+type ReqBuilder = reqwest::blocking::RequestBuilder;
 
 #[cfg(feature = "strong-types")]
 #[path = "strong_types_impl.rs"]
@@ -187,7 +192,7 @@ impl SearchQuery {
         self
     }
 
-    fn apply_to(&self, r: RequestBuilder) -> RequestBuilder {
+    fn apply_to(&self, r: ReqBuilder) -> ReqBuilder {
         r.query(self)
     }
 }
@@ -201,8 +206,8 @@ pub enum SearchQueryKind {
 
 impl serde::Serialize for SearchQueryKind {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
+        where
+            S: Serializer,
     {
         serializer.serialize_u32(*self as u32)
     }

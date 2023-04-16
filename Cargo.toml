@@ -1,25 +1,24 @@
 [package]
 name = "nekosbest"
 description = "nekos.best API wrapper"
-version = "0.15.0"
+version = "0.16.0"
 edition = "2021"
 license = "CC0-1.0"
 repository = "https://github.com/dnbln/nb-rs"
 readme = "README.md"
-include = ["/examples", "/tests", "/src", "/rustdoc-endpoints.json", "/build.rs", "/Cargo.toml", "/LICENSE", "/README.md"]
+include = ["/examples", "/tests", "/src", "/Cargo.toml", "/LICENSE", "/README.md", "/CHANGELOG.md"]
 
 [package.metadata.docs.rs]
-features = ["local"]
+features = []
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default = ["rustls-tls", "strong-types"]
+default = ["rustls-tls"]
 default-tls = ["reqwest/default-tls"]
 native-tls = ["reqwest/native-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
 
-local = ["rand"]
 metrics = ["humantime-serde"]
 blocking = ["reqwest/blocking", "nb-blocking-util"]
 
@@ -29,16 +28,12 @@ strong-types = []
 reqwest = { version = "0.11", default-features = false, features = ["json"] }
 thiserror = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-url = "1"
+url = "2"
 serde_json = "1"
 urlencoding = "2"
 
 [dependencies.humantime-serde]
 version = "1"
-optional = true
-
-[dependencies.rand]
-version = "0.8"
 optional = true
 
 [dependencies.nb-blocking-util]
@@ -62,9 +57,9 @@ quote = { version = "1", features = [] }
 proc-macro2 = "1"
 
 [[example]]
-name = "from_local_nekos"
-path = "examples/from_local_neko.rs"
-required-features = ["local"]
+name = "get_blocking"
+path = "examples/get_blocking.rs"
+required-features = ["blocking"]
 
 [[example]]
 name = "strong_get_nekos"

@@ -6,7 +6,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ```toml
 [dependencies]
-nekosbest = "0.15"
+nekosbest = "0.16"
 ```
 
 ## Example
@@ -98,31 +98,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
-
-By using the `local` feature, you can completely skip requests to the API.
-
-```rust ,no_run
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let img_url = nekosbest::local::Neko.get(); // requires the "local" feature
-    println!("{}", img_url);
-    Ok(())
-}
-```
-
-Or if you have your own random number:
-
-```rust ,no_run
-fn main() {
-    let your_random = todo!();
-    let img_url = nekosbest::local::Neko.get_random(your_random);
-    println!("{}", img_url);
-    Ok(())
-}
-```
-
-Take a look at [the build script](build.rs) and [src/local.rs](src/local.rs) if
-you want to find out how it works.
 
 ## Blocking client
 
