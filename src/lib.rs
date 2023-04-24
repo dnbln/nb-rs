@@ -8,6 +8,7 @@ pub mod metrics;
 pub mod category;
 pub mod details;
 pub mod response;
+pub mod client;
 
 pub use category::Category;
 use url::ParseError;
@@ -30,6 +31,9 @@ pub enum NekosBestError {
 
     #[error("error parsing url")]
     UrlParseError(#[from] ParseError),
+
+    #[error("rate limited")]
+    RateLimited,
 }
 
 pub const API_VERSION: usize = 2;

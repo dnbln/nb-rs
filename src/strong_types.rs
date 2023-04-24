@@ -10,6 +10,7 @@ use crate::{
     details::{GifDetails, ImageDetails},
     Category,
 };
+use crate::client::ReqBuilder;
 
 pub trait STCategory: Sized {
     const CATEGORY: Category;
@@ -164,7 +165,7 @@ impl<C: STCategory> STNekosBestSearchQuery<C> {
         self
     }
 
-    pub(crate) fn apply_to(&self, r: RequestBuilder) -> RequestBuilder {
+    pub(crate) fn apply_to(&self, r: ReqBuilder) -> ReqBuilder {
         r.query(self)
             .query(&[("type", C::SearchQueryType::TYPE)])
             .query(&[("category", C::CATEGORY.to_url_path())])

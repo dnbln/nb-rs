@@ -5,8 +5,7 @@ use crate::{
     strong_types::{STCategory, STNekosBestResponse, STNekosBestResponseSingle},
     NekosBestError, STNekosBestSearchQuery, BASE_URL,
 };
-
-use super::ReqwestClient;
+use crate::client::{Client, ClientConfig};
 
 /// Gets a single image, with a supplied client.
 ///
@@ -14,9 +13,10 @@ use super::ReqwestClient;
 /// Any errors that can happen, refer to [`NekosBestError`].
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client<C: STCategory>(
-    client: &ReqwestClient,
+    client: &Client,
 ) -> Result<STNekosBestResponseSingle<C>, NekosBestError> {
     let r = client
+        .client
         .get(format!("{BASE_URL}/{}", C::CATEGORY))
         .send()
         .await?;
@@ -37,10 +37,11 @@ pub async fn get_with_client<C: STCategory>(
 /// Any errors that can happen, refer to [`NekosBestError`].
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client_amount<C: STCategory>(
-    client: &ReqwestClient,
+    client: &Client,
     amount: impl Into<u8>,
 ) -> Result<STNekosBestResponse<C>, NekosBestError> {
     let req = client
+        .client
         .get(format!("{BASE_URL}/{}", C::CATEGORY))
         .query(&[("amount", amount.into())]);
 
@@ -57,7 +58,7 @@ pub async fn get_with_client_amount<C: STCategory>(
 /// Any errors that can happen, refer to [`NekosBestError`].
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get<C: STCategory>() -> Result<STNekosBestResponseSingle<C>, NekosBestError> {
-    get_with_client(&ReqwestClient::new()).await
+    get_with_client(&Client::new(ClientConfig::default())).await
 }
 
 /// Gets `amount` images, with the default client.
@@ -68,24 +69,33 @@ pub async fn get<C: STCategory>() -> Result<STNekosBestResponseSingle<C>, NekosB
 pub async fn get_amount<C: STCategory>(
     amount: impl Into<u8>,
 ) -> Result<STNekosBestResponse<C>, NekosBestError> {
-    get_with_client_amount(&ReqwestClient::new(), amount).await
+    get_with_client_amount(&Client::new(ClientConfig::default()), amount).await
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn search_with_client<C: STCategory>(
-    client: &ReqwestClient,
+    client: &Client,
     query: STNekosBestSearchQuery<C>,
 ) -> Result<STNekosBestResponse<C>, NekosBestError> {
-    let req = client.get(format!("{BASE_URL}/search"));
+    #[cfg(not(feature = "blocking"))]
+    client.handle_search_ratelimit().await?;
+
+    let req = client.client.get(format!("{BASE_URL}/search"));
 
     let req = query.apply_to(req);
 
-    Ok(req.send().await?.error_for_status()?.json().await?)
+    let res = req.send().await?;
+
+    #[cfg(not(feature = "blocking"))]
+    client.update_search_ratelimit_data(res.headers()).await;
+
+    Ok(res.error_for_status()?.json().await?)
 }
 
+#[deprecated(note = "Use `search_with_client` instead, and provide a client.", since = "0.17.0")]
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn search<C: STCategory>(
     query: STNekosBestSearchQuery<C>,
 ) -> Result<STNekosBestResponse<C>, NekosBestError> {
-    search_with_client(&ReqwestClient::new(), query).await
+    search_with_client(&Client::new(ClientConfig::default()), query).await
 }

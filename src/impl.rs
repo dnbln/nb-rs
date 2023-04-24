@@ -1,5 +1,5 @@
 use reqwest::header::HeaderMap;
-use reqwest::{IntoUrl};
+use reqwest::{IntoUrl, Response};
 use serde::Serializer;
 use std::string::FromUtf8Error;
 
@@ -11,16 +11,6 @@ use crate::{
 #[cfg(feature = "blocking")]
 use nb_blocking_util::blocking;
 
-#[cfg(not(feature = "blocking"))]
-type ReqwestClient = reqwest::Client;
-#[cfg(feature = "blocking")]
-type ReqwestClient = reqwest::blocking::Client;
-
-#[cfg(not(feature = "blocking"))]
-type ReqBuilder = reqwest::RequestBuilder;
-#[cfg(feature = "blocking")]
-type ReqBuilder = reqwest::blocking::RequestBuilder;
-
 #[cfg(feature = "strong-types")]
 #[path = "strong_types_impl.rs"]
 mod strong_types_impl;
@@ -31,6 +21,7 @@ pub use strong_types_impl::{
     get_with_client_amount as st_get_with_client_amount, search as st_search,
     search_with_client as st_search_with_client,
 };
+use crate::client::{Client, ClientConfig, ReqBuilder};
 
 /// Gets a single image, with a supplied client.
 ///
@@ -38,10 +29,11 @@ pub use strong_types_impl::{
 /// Any errors that can happen, refer to [`NekosBestError`].
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client(
-    client: &ReqwestClient,
+    client: &Client,
     category: impl Into<Category>,
 ) -> Result<NekosBestResponseSingle, NekosBestError> {
     let r = client
+        .client
         .get(format!("{BASE_URL}/{}", category.into()))
         .send()
         .await?;
@@ -59,11 +51,12 @@ pub async fn get_with_client(
 /// Any errors that can happen, refer to [`NekosBestError`].
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client_amount(
-    client: &ReqwestClient,
+    client: &Client,
     category: impl Into<Category>,
     amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
     let req = client
+        .client
         .get(format!("{BASE_URL}/{}", category.into()))
         .query(&[("amount", amount.into())]);
 
@@ -80,7 +73,7 @@ pub async fn get_with_client_amount(
 /// Any errors that can happen, refer to [`NekosBestError`].
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get(category: impl Into<Category>) -> Result<NekosBestResponseSingle, NekosBestError> {
-    get_with_client(&ReqwestClient::new(), category).await
+    get_with_client(&Client::new(ClientConfig::default()), category).await
 }
 
 /// Gets `amount` images, with the default client.
@@ -92,7 +85,7 @@ pub async fn get_amount(
     category: impl Into<Category>,
     amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
-    get_with_client_amount(&ReqwestClient::new(), category, amount).await
+    get_with_client_amount(&Client::new(ClientConfig::default()), category, amount).await
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -121,10 +114,10 @@ fn header_deserialize_urlencoded(
 
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client_image_details(
-    client: &ReqwestClient,
+    client: &Client,
     url: impl IntoUrl,
 ) -> Result<ImageDetails, NekosBestError> {
-    let resp = client.get(url).send().await?.error_for_status()?;
+    let resp = client.client.get(url).send().await?.error_for_status()?;
     let headers = resp.headers();
 
     let details = ImageDetails {
@@ -138,15 +131,15 @@ pub async fn get_with_client_image_details(
 
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_image_details(url: impl IntoUrl) -> Result<ImageDetails, NekosBestError> {
-    get_with_client_image_details(&ReqwestClient::new(), url).await
+    get_with_client_image_details(&Client::new(ClientConfig::default()), url).await
 }
 
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_with_client_gif_details(
-    client: &ReqwestClient,
+    client: &Client,
     url: impl IntoUrl,
 ) -> Result<GifDetails, NekosBestError> {
-    let resp = client.get(url).send().await?.error_for_status()?;
+    let resp = client.client.get(url).send().await?.error_for_status()?;
     let headers = resp.headers();
 
     let details = GifDetails {
@@ -158,7 +151,7 @@ pub async fn get_with_client_gif_details(
 
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn get_gif_details(url: impl IntoUrl) -> Result<GifDetails, NekosBestError> {
-    get_with_client_gif_details(&ReqwestClient::new(), url).await
+    get_with_client_gif_details(&Client::new(ClientConfig::default()), url).await
 }
 
 #[derive(serde::Serialize)]
@@ -215,22 +208,29 @@ impl serde::Serialize for SearchQueryKind {
 
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn search_with_client(
-    client: &ReqwestClient,
+    client: &Client,
     query: SearchQuery,
 ) -> Result<NekosBestResponse, NekosBestError> {
-    let req = client.get(format!("{BASE_URL}/search"));
+    let req = client.client.get(format!("{BASE_URL}/search"));
+
+    #[cfg(not(feature = "blocking"))]
+    client.handle_search_ratelimit().await?;
 
     let req = query.apply_to(req);
 
-    Ok(req
-        .send()
-        .await?
+    let res = req.send().await?;
+
+    #[cfg(not(feature = "blocking"))]
+    client.update_search_ratelimit_data(res.headers()).await;
+
+    Ok(res
         .error_for_status()?
         .json::<NekosBestResponse>()
         .await?)
 }
 
+#[deprecated(note = "Use `search_with_client` instead, and provide a client.", since = "0.17.0")]
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn search(query: SearchQuery) -> Result<NekosBestResponse, NekosBestError> {
-    search_with_client(&ReqwestClient::new(), query).await
+    search_with_client(&Client::new(ClientConfig::default()), query).await
 }
