@@ -15,13 +15,28 @@ use nb_blocking_util::blocking;
 #[path = "strong_types_impl.rs"]
 mod strong_types_impl;
 
-use crate::client::{Client, ClientConfig, ReqBuilder};
+use crate::client::{Client, ClientConfig, ReqBuilder, ReqwestResponse};
 #[cfg(feature = "strong-types")]
 pub use strong_types_impl::{
     get as st_get, get_amount as st_get_amount, get_with_client as st_get_with_client,
     get_with_client_amount as st_get_with_client_amount, search as st_search,
     search_with_client as st_search_with_client,
 };
+
+#[cfg_attr(feature = "blocking", blocking)]
+async fn parse_from_response(response: ReqwestResponse) -> Result<NekosBestResponse, NekosBestError> {
+    #[cfg(not(nekosbest_dbgjson))]
+    let v = response.error_for_status()?.json::<NekosBestResponse>().await?;
+
+    #[cfg(nekosbest_dbgjson)]
+    let v = {
+        let json = response.error_for_status()?.text().await?;
+        dbg!(&json);
+        serde_json::from_str::<NekosBestResponse>(&json)?
+    };
+
+    Ok(v)
+}
 
 /// Gets a single image, with a supplied client.
 ///
@@ -38,7 +53,7 @@ pub async fn get_with_client(
         .send()
         .await?;
 
-    let mut resp = r.error_for_status()?.json::<NekosBestResponse>().await?;
+    let mut resp = parse_from_response(r).await?;
     let resp = resp.0.pop().ok_or(NekosBestError::NotFound)?;
 
     Ok(resp)
@@ -62,7 +77,7 @@ pub async fn get_with_client_amount(
 
     let r = req.send().await?;
 
-    let v = r.error_for_status()?.json::<NekosBestResponse>().await?;
+    let v = parse_from_response(r).await?;
 
     Ok(v)
 }
@@ -223,7 +238,7 @@ pub async fn search_with_client(
     #[cfg(not(feature = "blocking"))]
     client.update_search_ratelimit_data(res.headers()).await;
 
-    Ok(res.error_for_status()?.json::<NekosBestResponse>().await?)
+    Ok(parse_from_response(res).await?)
 }
 
 #[deprecated(

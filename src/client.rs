@@ -13,6 +13,12 @@ pub(crate) type ReqBuilder = reqwest::RequestBuilder;
 #[cfg(feature = "blocking")]
 pub(crate) type ReqBuilder = reqwest::blocking::RequestBuilder;
 
+#[cfg(not(feature = "blocking"))]
+pub(crate) type ReqwestResponse = reqwest::Response;
+#[cfg(feature = "blocking")]
+pub(crate) type ReqwestResponse = reqwest::blocking::Response;
+
+
 struct SearchRatelimitData {
     remaining: u32,
     resets_at: Instant,
@@ -75,7 +81,6 @@ impl Client {
         let Ok(remaining) = remaining.to_str() else { return; };
         let Ok(remaining) = remaining.parse::<u32>() else { return; };
         let Ok(reset) = reset.to_str() else { return; };
-        dbg!(reset);
 
         let Ok(reset) = reset.parse::<chrono::DateTime::<chrono::Utc>>()
             else { return; };
