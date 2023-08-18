@@ -18,6 +18,7 @@ macro_rules! categories {
             serde::Deserialize,
         )]
         #[serde(into = "String", try_from = "String")]
+        #[non_exhaustive]
         pub enum Category {
             $(
                 $(#[$at])*

@@ -1,3 +1,8 @@
+# Unreleased
+
+- Made `Category` `#[non_exhaustive]` to allow for new categories to be added
+  without breaking the public API.
+
 # 0.19.0
 
 Released: 2023-08-18
