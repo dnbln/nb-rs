@@ -49,6 +49,13 @@ macro_rules! categories {
                     )*
                 }
             }
+
+            pub const ALL_VARIANTS: &[Category] = &[
+                $(
+                    $(#[$ref_at])*
+                    Category::$cat_name,
+                )*
+            ];
         }
     };
 }
@@ -64,6 +71,7 @@ categories! {
     Facepalm => "facepalm",
     Feed => "feed",
     Handhold => "handhold",
+    Handshake => "handshake",
     Happy => "happy",
     Highfive => "highfive",
     Hug => "hug",
@@ -72,11 +80,13 @@ categories! {
     Kiss => "kiss",
     Kitsune => "kitsune",
     Laugh => "laugh",
+    Lurk => "lurk",
     Neko => "neko",
     Nod => "nod",
     Nom => "nom",
     Nope => "nope",
     Pat => "pat",
+    Peck => "peck",
     Poke => "poke",
     Pout => "pout",
     Punch => "punch",
@@ -93,6 +103,7 @@ categories! {
     Waifu => "waifu",
     Wave => "wave",
     Wink => "wink",
+    Yawn => "yawn",
     Yeet => "yeet",
 }
 

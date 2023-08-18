@@ -6,11 +6,11 @@ use std::{
 
 use serde::Deserialize;
 
+use crate::client::ReqBuilder;
 use crate::{
     details::{GifDetails, ImageDetails},
     Category,
 };
-use crate::client::ReqBuilder;
 
 pub trait STCategory: Sized {
     const CATEGORY: Category;
@@ -53,9 +53,9 @@ macro_rules! gif_endpoints {
 }
 
 gif_endpoints!([
-    Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Handhold, Happy, Highfive, Hug,
-    Kick, Kiss, Laugh, Nod, Nom, Nope, Pat, Poke, Pout, Punch, Shoot, Shrug, Slap, Sleep, Smile,
-    Smug, Stare, Think, ThumbsUp, Tickle, Wave, Wink, Yeet
+    Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Handhold, Handshake, Happy,
+    Highfive, Hug, Kick, Kiss, Laugh, Lurk, Nod, Nom, Nope, Pat, Peck, Poke, Pout, Punch, Shoot,
+    Shrug, Slap, Sleep, Smile, Smug, Stare, Think, ThumbsUp, Tickle, Wave, Wink, Yawn, Yeet
 ]);
 
 macro_rules! image_endpoints {

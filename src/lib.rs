@@ -53,11 +53,12 @@ pub use implementation::*;
 #[cfg(test)]
 mod test {
     use std::collections::HashMap;
+    use crate::client::{Client, ClientConfig};
 
     use super::*;
 
     async fn try_endpoint(
-        client: &reqwest::Client,
+        client: &Client,
         category: impl Into<Category>,
     ) -> Result<(), (NekosBestError, Category)> {
         let category = category.into();
@@ -67,28 +68,12 @@ mod test {
         }
     }
 
-    macro_rules! try_endpoints {
-        ($client:expr, $try_endpoint_fn:ident, [$($(#[$at:meta])* $category:ident),* $(,)?]) => {
-            $(try_endpoints!($client, $try_endpoint_fn, $(#[$at])* $category);)*
-        };
-
-        ($client:expr, $try_endpoint_fn:ident, $(#[$at:meta])* $category:ident) => {
-            $try_endpoint_fn($client, $(#[$at])* {Category::$category}).await.unwrap(); // test will fail if any of them error
-        }
-    }
-
     #[tokio::test]
     async fn all_endpoints_work() {
-        let client = reqwest::Client::new();
-        try_endpoints!(
-            &client,
-            try_endpoint,
-            [
-                Baka, Bite, Blush, Bored, Cry, Cuddle, Dance, Facepalm, Feed, Happy, Highfive, Hug,
-                Husbando, Kiss, Laugh, Neko, Nod, Nom, Nope, Pat, Poke, Pout, Shrug, Slap, Sleep,
-                Smile, Smug, Stare, Think, ThumbsUp, Tickle, Wave, Wink, Yeet
-            ]
-        );
+        let client = Client::new(ClientConfig::default());
+        for cat in Category::ALL_VARIANTS {
+            try_endpoint(&client, *cat).await.unwrap(); // test will fail if any of them error
+        }
     }
 
     #[tokio::test]

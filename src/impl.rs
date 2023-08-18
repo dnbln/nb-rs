@@ -1,5 +1,5 @@
 use reqwest::header::HeaderMap;
-use reqwest::{IntoUrl, Response};
+use reqwest::IntoUrl;
 use serde::Serializer;
 use std::string::FromUtf8Error;
 
@@ -15,13 +15,13 @@ use nb_blocking_util::blocking;
 #[path = "strong_types_impl.rs"]
 mod strong_types_impl;
 
+use crate::client::{Client, ClientConfig, ReqBuilder};
 #[cfg(feature = "strong-types")]
 pub use strong_types_impl::{
     get as st_get, get_amount as st_get_amount, get_with_client as st_get_with_client,
     get_with_client_amount as st_get_with_client_amount, search as st_search,
     search_with_client as st_search_with_client,
 };
-use crate::client::{Client, ClientConfig, ReqBuilder};
 
 /// Gets a single image, with a supplied client.
 ///
@@ -199,8 +199,8 @@ pub enum SearchQueryKind {
 
 impl serde::Serialize for SearchQueryKind {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         serializer.serialize_u32(*self as u32)
     }
@@ -223,13 +223,13 @@ pub async fn search_with_client(
     #[cfg(not(feature = "blocking"))]
     client.update_search_ratelimit_data(res.headers()).await;
 
-    Ok(res
-        .error_for_status()?
-        .json::<NekosBestResponse>()
-        .await?)
+    Ok(res.error_for_status()?.json::<NekosBestResponse>().await?)
 }
 
-#[deprecated(note = "Use `search_with_client` instead, and provide a client.", since = "0.17.0")]
+#[deprecated(
+    note = "Use `search_with_client` instead, and provide a client.",
+    since = "0.17.0"
+)]
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn search(query: SearchQuery) -> Result<NekosBestResponse, NekosBestError> {
     search_with_client(&Client::new(ClientConfig::default()), query).await

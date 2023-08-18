@@ -1,3 +1,9 @@
+# 0.18.0
+
+Released: 2023-08-18
+
+- Added new categories: `handshake`, `lurk`, `peck` and `yawn`.
+
 # 0.17.0
 
 Released: 2023-04-24
