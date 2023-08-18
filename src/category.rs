@@ -82,6 +82,7 @@ categories! {
     Laugh => "laugh",
     Lurk => "lurk",
     Neko => "neko",
+    Nibble => "nibble",
     Nod => "nod",
     Nom => "nom",
     Nope => "nope",
