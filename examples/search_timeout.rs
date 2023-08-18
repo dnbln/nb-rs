@@ -21,11 +21,11 @@ async fn main() {
                 dbg!(&r.0);
             }
             Err(nekosbest::NekosBestError::RateLimited) => {
-                println!("Rate limited on iteration {}", i);
+                println!("Rate limited on iteration {i}");
                 return;
             }
             Err(e) => {
-                panic!("Error: {:?}", e);
+                panic!("Error: {e:?}");
             }
         }
     }

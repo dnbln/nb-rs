@@ -82,7 +82,7 @@ mod test {
 
         async fn get_endpoints(client: &reqwest::Client) -> HashMap<String, EndpointDesc> {
             client
-                .get(format!("{}/endpoints", BASE_URL))
+                .get(format!("{BASE_URL}/endpoints"))
                 .send()
                 .await
                 .unwrap()
@@ -105,15 +105,12 @@ mod test {
         let mut unknown_endpoints = vec![];
         for item in list {
             if item.as_str().parse::<Category>().is_err() {
-                unknown_endpoints.push(format!("{}/{}", BASE_URL, item));
+                unknown_endpoints.push(format!("{BASE_URL}/{item}"));
             }
         }
 
         if !unknown_endpoints.is_empty() {
-            panic!(
-                "Looks like there are new endpoints, please add them: {:?}",
-                unknown_endpoints
-            );
+            panic!("Looks like there are new endpoints, please add them: {unknown_endpoints:?}");
         }
     }
 }

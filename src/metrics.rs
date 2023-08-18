@@ -81,7 +81,7 @@ pub struct Metrics {
 }
 
 pub async fn get_metrics_with_client(client: &reqwest::Client) -> Result<Metrics, NekosBestError> {
-    let resp = client.get(format!("{}/metrics", BASE_URL)).send().await?;
+    let resp = client.get(format!("{BASE_URL}/metrics")).send().await?;
 
     let metrics = resp.json::<Metrics>().await?;
 

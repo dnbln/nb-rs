@@ -18,7 +18,6 @@ pub(crate) type ReqwestResponse = reqwest::Response;
 #[cfg(feature = "blocking")]
 pub(crate) type ReqwestResponse = reqwest::blocking::Response;
 
-
 struct SearchRatelimitData {
     remaining: u32,
     resets_at: Instant,

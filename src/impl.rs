@@ -24,9 +24,14 @@ pub use strong_types_impl::{
 };
 
 #[cfg_attr(feature = "blocking", blocking)]
-async fn parse_from_response(response: ReqwestResponse) -> Result<NekosBestResponse, NekosBestError> {
+async fn parse_from_response(
+    response: ReqwestResponse,
+) -> Result<NekosBestResponse, NekosBestError> {
     #[cfg(not(nekosbest_dbgjson))]
-    let v = response.error_for_status()?.json::<NekosBestResponse>().await?;
+    let v = response
+        .error_for_status()?
+        .json::<NekosBestResponse>()
+        .await?;
 
     #[cfg(nekosbest_dbgjson)]
     let v = {

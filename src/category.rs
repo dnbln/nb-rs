@@ -29,24 +29,26 @@ macro_rules! categories {
             type Err = NoSuchVariant;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
-                let c = match s {
-                    $(
-                        $url_name => $(#[$ref_at])* {Category::$cat_name},
-                    )*
-                    _ => return Err(NoSuchVariant),
-                };
-
-                Ok(c)
+                Self::from_url_name(s).ok_or(NoSuchVariant)
             }
         }
 
         impl Category {
-            pub const fn to_url_path(self) -> &'static str {
+            pub const fn to_url_name(self) -> &'static str {
                 match self {
                     $(
                         $(#[$ref_at])*
                         Category::$cat_name => $url_name,
                     )*
+                }
+            }
+
+            pub fn from_url_name(name: &str) -> Option<Self> {
+                match name {
+                    $(
+                        $url_name => Some($(#[$ref_at])* {Category::$cat_name}),
+                    )*
+                    _ => None,
                 }
             }
 
@@ -121,12 +123,12 @@ impl TryFrom<String> for Category {
 
 impl Into<String> for Category {
     fn into(self) -> String {
-        format!("{}", self)
+        self.to_url_name().to_owned()
     }
 }
 
 impl std::fmt::Display for Category {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.to_url_path().fmt(f)
+        self.to_url_name().fmt(f)
     }
 }

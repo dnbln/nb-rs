@@ -6,7 +6,7 @@ Rust API wrapper for [nekos.best](https://nekos.best/).
 
 ```toml
 [dependencies]
-nekosbest = "0.18"
+nekosbest = "0.19"
 ```
 
 ## Example
@@ -15,7 +15,7 @@ nekosbest = "0.18"
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let img_url: String = nekosbest::get(nekosbest::Category::Neko).await?.url;
-    println!("{}", img_url);
+    println!("{img_url}");
     Ok(())
 }
 ```
@@ -26,7 +26,7 @@ Or with an amount (amount is capped at 20 by the server):
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let images = nekosbest::get_amount(nekosbest::Category::Neko, 20).await?.0;
-    println!("{:?}", images);
+    println!("{images:?}");
     Ok(())
 }
 ```

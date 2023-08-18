@@ -1,3 +1,11 @@
+# 0.19.0
+
+Released: 2023-08-18
+
+- Changed `Category::to_url_path` to less misleading `Category::to_url_name`,
+  and added `Category::from_url_name` to parse a category from a name (also
+  used for `FromStr` implementation).
+
 # 0.18.0
 
 Released: 2023-08-18
