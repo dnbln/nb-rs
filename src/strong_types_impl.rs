@@ -1,11 +1,11 @@
 #[cfg(feature = "blocking")]
 use nb_blocking_util::blocking;
 
+use crate::client::{Client, ClientConfig};
 use crate::{
     strong_types::{STCategory, STNekosBestResponse, STNekosBestResponseSingle},
     NekosBestError, STNekosBestSearchQuery, BASE_URL,
 };
-use crate::client::{Client, ClientConfig};
 
 /// Gets a single image, with a supplied client.
 ///
@@ -92,7 +92,10 @@ pub async fn search_with_client<C: STCategory>(
     Ok(res.error_for_status()?.json().await?)
 }
 
-#[deprecated(note = "Use `search_with_client` instead, and provide a client.", since = "0.17.0")]
+#[deprecated(
+    note = "Use `search_with_client` instead, and provide a client.",
+    since = "0.17.0"
+)]
 #[cfg_attr(feature = "blocking", blocking)]
 pub async fn search<C: STCategory>(
     query: STNekosBestSearchQuery<C>,

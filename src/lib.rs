@@ -6,9 +6,9 @@ pub extern crate reqwest;
 pub mod metrics;
 
 pub mod category;
+pub mod client;
 pub mod details;
 pub mod response;
-pub mod client;
 
 pub use category::Category;
 use url::ParseError;
@@ -52,8 +52,8 @@ pub use implementation::*;
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
     use crate::client::{Client, ClientConfig};
+    use std::collections::HashMap;
 
     use super::*;
 

@@ -1,5 +1,5 @@
-use nekosbest::{SearchQuery, SearchQueryKind};
 use nekosbest::client::ClientConfig;
+use nekosbest::{SearchQuery, SearchQueryKind};
 
 #[tokio::main]
 async fn main() {
@@ -14,7 +14,7 @@ async fn main() {
                 .amount(2)
                 .category(nekosbest::Category::Pat),
         )
-            .await;
+        .await;
 
         match r {
             Ok(r) => {

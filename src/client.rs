@@ -13,7 +13,6 @@ pub(crate) type ReqBuilder = reqwest::RequestBuilder;
 #[cfg(feature = "blocking")]
 pub(crate) type ReqBuilder = reqwest::blocking::RequestBuilder;
 
-
 struct SearchRatelimitData {
     remaining: u32,
     resets_at: Instant,
