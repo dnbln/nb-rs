@@ -1,3 +1,9 @@
+# 0.20.1
+
+Released: 2023-08-19
+
+- Bug fix: changed `File::write` to `File::write_all` when downloading images.
+
 # 0.20.0
 
 Released: 2023-08-19

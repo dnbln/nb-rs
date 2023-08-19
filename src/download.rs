@@ -162,7 +162,7 @@ pub async fn download_from_url_to_file_with_client(
     let mut f = tokio::fs::File::create(file).await?;
 
     while let Some(item) = stream.next().await {
-        f.write(&item?).await?;
+        f.write_all(&item?).await?;
     }
 
     Ok(())
