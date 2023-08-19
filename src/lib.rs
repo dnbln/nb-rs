@@ -8,6 +8,8 @@ pub mod metrics;
 pub mod category;
 pub mod client;
 pub mod details;
+#[cfg(feature = "download")]
+pub mod download;
 pub mod response;
 
 pub use category::Category;
@@ -31,6 +33,16 @@ pub enum NekosBestError {
 
     #[error("error parsing url")]
     UrlParseError(#[from] ParseError),
+
+    #[cfg(feature = "download")]
+    #[error("error decoding downloaded image")]
+    ImageDecodeError(#[from] image::ImageError),
+
+    #[error("missing content type")]
+    MissingContentType,
+
+    #[error("io error")]
+    IO(#[from] std::io::Error),
 
     #[error("rate limited")]
     RateLimited,

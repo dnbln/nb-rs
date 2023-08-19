@@ -1,7 +1,11 @@
-# Unreleased
+# 0.20.0
+
+Released: 2023-08-19
 
 - Made `Category` `#[non_exhaustive]` to allow for new categories to be added
   without breaking the public API.
+- `download` feature: allow the downloading of images directly
+  through the library.
 
 # 0.19.0
 
@@ -24,7 +28,7 @@ Released: 2023-04-24
 - Implemented a proper `Client`.
 - Added rate limiting for the search endpoint.
 - Removed the unused `build-dependencies` section from `Cargo.toml`,
-  which was previously used for the `local` feature. 
+  which was previously used for the `local` feature.
 
 # 0.16.0
 
