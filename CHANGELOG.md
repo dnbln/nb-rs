@@ -1,3 +1,9 @@
+# 0.21.2
+
+Released: 2025-03-17
+
+Make the `blocking` feature compile again, and work with `download`.
+
 # 0.21.1
 
 Released: 2025-03-17

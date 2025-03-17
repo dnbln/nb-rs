@@ -92,7 +92,7 @@ pub async fn download_from_url_with_client(
     client: &Client,
     url: impl IntoUrl,
 ) -> Result<DownloadResult, NekosBestError> {
-    let resp = client.client.get(url).send().await?.error_for_status()?;
+    let resp = crate::prepare_request(client.client.get(url)).send().await?.error_for_status()?;
     let content_type = resp
         .headers()
         .get(reqwest::header::CONTENT_TYPE)
@@ -149,7 +149,7 @@ pub async fn download_from_url_to_file(
     ).await
 }
 
-#[cfg_attr(feature = "blocking", blocking)]
+#[cfg(not(feature = "blocking"))]
 pub async fn download_from_url_to_file_with_client(
     client: &Client,
     url: impl IntoUrl,
@@ -157,13 +157,30 @@ pub async fn download_from_url_to_file_with_client(
 ) -> Result<(), NekosBestError> {
     use futures::StreamExt;
 
-    let resp = client.client.get(url).send().await?.error_for_status()?;
+    let resp = crate::prepare_request(client.client.get(url)).send().await?.error_for_status()?;
     let mut stream = resp.bytes_stream();
     let mut f = tokio::fs::File::create(file).await?;
 
     while let Some(item) = stream.next().await {
         f.write_all(&item?).await?;
     }
+
+    Ok(())
+}
+
+
+#[cfg(feature = "blocking")]
+pub fn download_from_url_to_file_with_client(
+    client: &Client,
+    url: impl IntoUrl,
+    file: impl AsRef<std::path::Path>,
+) -> Result<(), NekosBestError> {
+    use std::io::Write;
+
+    let mut resp = crate::prepare_request(client.client.get(url)).send()?.error_for_status()?;
+    let mut f = std::fs::File::create(file)?;
+
+    std::io::copy(&mut resp, &mut f)?;
 
     Ok(())
 }

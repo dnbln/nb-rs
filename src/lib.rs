@@ -13,7 +13,6 @@ pub mod download;
 pub mod response;
 
 pub use category::Category;
-use reqwest::header;
 use url::ParseError;
 
 pub use response::{NekosBestResponse, NekosBestResponseSingle};
@@ -68,9 +67,19 @@ mod implementation;
 
 pub use implementation::*;
 
-fn prepare_request(r: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
-    r.header(header::USER_AGENT, API_CLIENT_AGENT)
+mod prep_req {
+    #[cfg(feature = "blocking")]
+    type Rb = reqwest::blocking::RequestBuilder;
+
+    #[cfg(not(feature = "blocking"))]
+    type Rb = reqwest::RequestBuilder;
+
+    pub fn prepare_request(r: Rb) -> Rb {
+        r.header(reqwest::header::USER_AGENT, crate::API_CLIENT_AGENT)
+    }
 }
+
+use prep_req::prepare_request;
 
 #[cfg(test)]
 mod test {
