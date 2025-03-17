@@ -1,3 +1,10 @@
+# 0.21.1
+
+Released: 2025-03-17
+
+- Added the new Categories (`Angry` and `Run`) to the `strong-types` feature as well.
+
+
 # 0.21.0
 
 Released: 2025-03-17
