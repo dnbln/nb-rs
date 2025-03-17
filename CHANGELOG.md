@@ -1,3 +1,10 @@
+# 0.21.0
+
+Released: 2025-03-17
+
+- Added new Categories: `Angry` and `Run`.
+- Bug fix: Make strong types feature compile again.
+
 # 0.20.1
 
 Released: 2023-08-19
