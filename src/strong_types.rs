@@ -168,7 +168,7 @@ impl<C: STCategory> STNekosBestSearchQuery<C> {
     pub(crate) fn apply_to(&self, r: ReqBuilder) -> ReqBuilder {
         r.query(self)
             .query(&[("type", C::SearchQueryType::TYPE)])
-            .query(&[("category", C::CATEGORY.to_url_path())])
+            .query(&[("category", C::CATEGORY.to_url_name())])
     }
 }
 

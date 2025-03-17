@@ -52,9 +52,7 @@ pub async fn get_with_client(
     client: &Client,
     category: impl Into<Category>,
 ) -> Result<NekosBestResponseSingle, NekosBestError> {
-    let r = client
-        .client
-        .get(format!("{BASE_URL}/{}", category.into()))
+    let r = crate::prepare_request(client.client.get(format!("{BASE_URL}/{}", category.into())))
         .send()
         .await?;
 
@@ -75,9 +73,7 @@ pub async fn get_with_client_amount(
     category: impl Into<Category>,
     amount: impl Into<u8>,
 ) -> Result<NekosBestResponse, NekosBestError> {
-    let req = client
-        .client
-        .get(format!("{BASE_URL}/{}", category.into()))
+    let req = crate::prepare_request(client.client.get(format!("{BASE_URL}/{}", category.into())))
         .query(&[("amount", amount.into())]);
 
     let r = req.send().await?;
@@ -137,7 +133,10 @@ pub async fn get_with_client_image_details(
     client: &Client,
     url: impl IntoUrl,
 ) -> Result<ImageDetails, NekosBestError> {
-    let resp = client.client.get(url).send().await?.error_for_status()?;
+    let resp = crate::prepare_request(client.client.get(url))
+        .send()
+        .await?
+        .error_for_status()?;
     let headers = resp.headers();
 
     let details = ImageDetails {
@@ -159,7 +158,10 @@ pub async fn get_with_client_gif_details(
     client: &Client,
     url: impl IntoUrl,
 ) -> Result<GifDetails, NekosBestError> {
-    let resp = client.client.get(url).send().await?.error_for_status()?;
+    let resp = crate::prepare_request(client.client.get(url))
+        .send()
+        .await?
+        .error_for_status()?;
     let headers = resp.headers();
 
     let details = GifDetails {
@@ -231,7 +233,7 @@ pub async fn search_with_client(
     client: &Client,
     query: SearchQuery,
 ) -> Result<NekosBestResponse, NekosBestError> {
-    let req = client.client.get(format!("{BASE_URL}/search"));
+    let req = crate::prepare_request(client.client.get(format!("{BASE_URL}/search")));
 
     #[cfg(not(feature = "blocking"))]
     client.handle_search_ratelimit().await?;

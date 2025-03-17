@@ -13,6 +13,7 @@ pub mod download;
 pub mod response;
 
 pub use category::Category;
+use reqwest::header;
 use url::ParseError;
 
 pub use response::{NekosBestResponse, NekosBestResponseSingle};
@@ -50,6 +51,11 @@ pub enum NekosBestError {
 
 pub const API_VERSION: usize = 2;
 pub const BASE_URL: &str = "https://nekos.best/api/v2";
+const API_CLIENT_AGENT: &str = concat!(
+    "Cthulhu/",
+    env!("CARGO_PKG_VERSION"),
+    " (Unholy Terrors; Devouring Souls)"
+);
 
 #[cfg(feature = "strong-types")]
 pub mod strong_types;
@@ -61,6 +67,10 @@ pub use strong_types::*;
 mod implementation;
 
 pub use implementation::*;
+
+fn prepare_request(r: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
+    r.header(header::USER_AGENT, API_CLIENT_AGENT)
+}
 
 #[cfg(test)]
 mod test {
@@ -93,8 +103,7 @@ mod test {
         let client = reqwest::Client::new();
 
         async fn get_endpoints(client: &reqwest::Client) -> HashMap<String, EndpointDesc> {
-            client
-                .get(format!("{BASE_URL}/endpoints"))
+            crate::prepare_request(client.get(format!("{BASE_URL}/endpoints")))
                 .send()
                 .await
                 .unwrap()
@@ -106,8 +115,6 @@ mod test {
         #[derive(serde::Deserialize)]
         #[allow(dead_code)]
         struct EndpointDesc {
-            min: String,
-            max: String,
             format: String,
         }
 

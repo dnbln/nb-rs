@@ -15,9 +15,9 @@ use crate::{
 pub async fn get_with_client<C: STCategory>(
     client: &Client,
 ) -> Result<STNekosBestResponseSingle<C>, NekosBestError> {
-    let r = client
+    let r = crate::prepare_request(client
         .client
-        .get(format!("{BASE_URL}/{}", C::CATEGORY))
+        .get(format!("{BASE_URL}/{}", C::CATEGORY)))
         .send()
         .await?;
 
@@ -40,9 +40,9 @@ pub async fn get_with_client_amount<C: STCategory>(
     client: &Client,
     amount: impl Into<u8>,
 ) -> Result<STNekosBestResponse<C>, NekosBestError> {
-    let req = client
+    let req = crate::prepare_request(client
         .client
-        .get(format!("{BASE_URL}/{}", C::CATEGORY))
+        .get(format!("{BASE_URL}/{}", C::CATEGORY)))
         .query(&[("amount", amount.into())]);
 
     let r = req.send().await?;
@@ -80,7 +80,7 @@ pub async fn search_with_client<C: STCategory>(
     #[cfg(not(feature = "blocking"))]
     client.handle_search_ratelimit().await?;
 
-    let req = client.client.get(format!("{BASE_URL}/search"));
+    let req = crate::prepare_request(client.client.get(format!("{BASE_URL}/search")));
 
     let req = query.apply_to(req);
 

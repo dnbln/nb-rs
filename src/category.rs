@@ -64,6 +64,7 @@ macro_rules! categories {
 }
 
 categories! {
+    Angry => "angry",
     Baka => "baka",
     Bite => "bite",
     Blush => "blush",
@@ -93,6 +94,7 @@ categories! {
     Poke => "poke",
     Pout => "pout",
     Punch => "punch",
+    Run => "run",
     Shoot => "shoot",
     Shrug => "shrug",
     Slap => "slap",
